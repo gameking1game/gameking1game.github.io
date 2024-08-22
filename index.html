@@ -53,8 +53,10 @@
             <h2>Mesajlar</h2>
             <div id="adminActions" style="display: none;">
                 <h3>Mesaj Gönder</h3>
+                <label for="recipientUsername">Kime:</label>
                 <input type="text" id="recipientUsername" placeholder="Kullanıcı adı">
-                <textarea id="messageContent" placeholder="Mesajınızı yazın"></textarea>
+                <label for="messageContent">Mesaj:</label>
+                <textarea id="messageContent" rows="4" placeholder="Mesajınızı yazın"></textarea>
                 <button id="sendMessageButton">Mesaj Gönder</button>
             </div>
             <div id="userMessages">
@@ -69,16 +71,19 @@
             { username: "Yönetici", password: "Yönetici1", isAdmin: true, messages: [] }
         ];
 
+        // Hesabın Var mı? Butonu
         document.getElementById('hasAccountButton').addEventListener('click', function() {
             document.getElementById('loginSection').style.display = 'block';
             document.getElementById('registerSection').style.display = 'none';
         });
 
+        // Hesap Oluştur Butonu
         document.getElementById('createAccountButton').addEventListener('click', function() {
             document.getElementById('registerSection').style.display = 'block';
             document.getElementById('loginSection').style.display = 'none';
         });
 
+        // Kayıt Olma Formu
         document.getElementById('registerForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const username = document.getElementById('registerUsername').value;
@@ -90,9 +95,12 @@
                 users.push({ username, password, isAdmin: false, messages: [] });
                 alert('Hesap başarıyla oluşturuldu!');
                 document.getElementById('registerForm').reset();
+                document.getElementById('registerSection').style.display = 'none';
+                document.getElementById('loginSection').style.display = 'block';
             }
         });
 
+        // Giriş Yapma Formu
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const username = document.getElementById('loginUsername').value;
@@ -101,13 +109,13 @@
             const user = users.find(u => u.username === username && u.password === password);
 
             if (user) {
-                alert("Giriş başarılı!");
                 handleLoginSuccess(user);
             } else {
                 alert("Geçersiz kullanıcı adı veya şifre.");
             }
         });
 
+        // Giriş Başarılı
         function handleLoginSuccess(user) {
             document.getElementById('loginSection').style.display = 'none';
             document.getElementById('registerSection').style.display = 'none';
@@ -124,14 +132,20 @@
                     if (recipientUser) {
                         recipientUser.messages.push({ from: user.username, content: message });
                         alert('Mesaj gönderildi!');
+                        document.getElementById('recipientUsername').value = '';
+                        document.getElementById('messageContent').value = '';
                     } else {
                         alert('Kullanıcı bulunamadı.');
                     }
                 });
             } else {
-                if (user.messages.length > 0) {
+                const userMessages = user.messages;
+                if (userMessages.length > 0) {
                     document.getElementById('notificationSection').style.display = 'block';
+                    const messagesList = document.getElementById('messagesList');
+                    messagesList.innerHTML = userMessages.map(msg => `<li><strong>${msg.from}:</strong> ${msg.content}</li>`).join('');
                 }
+                document.getElementById('messageSection').style.display = 'block';
             }
         }
     </script>
