@@ -47,6 +47,7 @@
         <!-- Bilgi ve Mesaj Bölümleri -->
         <div id="infoSection">
             <h2>Hoşgeldiniz, <span id="userName"></span></h2>
+            <button id="logoutButton">Çıkış Yap</button>
             <div id="notificationSection" style="display: none;">
                 <h3>Yönetici Duyuruları:</h3>
                 <ul id="notificationsList"></ul>
@@ -72,6 +73,9 @@
         const users = [
             { username: adminUsername, password: adminPassword, isAdmin: true, messages: [] }
         ];
+
+        // Kullanıcı bilgileri
+        let currentUser = null;
 
         // Hesabın Var mı? Butonu
         document.getElementById('hasAccountButton').addEventListener('click', function() {
@@ -120,8 +124,19 @@
             }
         });
 
+        // Çıkış Yap Butonu
+        document.getElementById('logoutButton').addEventListener('click', function() {
+            currentUser = null;
+            document.getElementById('infoSection').style.display = 'none';
+            document.getElementById('loginSection').style.display = 'block';
+            document.getElementById('registerSection').style.display = 'none';
+            document.getElementById('messageSection').style.display = 'none';
+            document.getElementById('notificationSection').style.display = 'none';
+        });
+
         // Giriş Başarılı
         function handleLoginSuccess(user) {
+            currentUser = user;
             document.getElementById('loginSection').style.display = 'none';
             document.getElementById('registerSection').style.display = 'none';
             document.getElementById('infoSection').style.display = 'block';
