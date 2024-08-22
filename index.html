@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kayıt ve Giriş Sistemi</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            text-align: center;
+            padding-top: 50px;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            max-width: 400px;
+            margin: 0 auto;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        h2 {
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Kayıt Ol</h2>
+        <form id="registerForm">
+            <label for="registerUsername">Kullanıcı Adı:</label>
+            <input type="text" id="registerUsername" required>
+            <label for="registerPassword">Şifre:</label>
+            <input type="password" id="registerPassword" required>
+            <button type="submit">Kayıt Ol</button>
+        </form>
+
+        <h2>Giriş Yap</h2>
+        <form id="loginForm">
+            <label for="loginUsername">Kullanıcı Adı:</label>
+            <input type="text" id="loginUsername" required>
+            <label for="loginPassword">Şifre:</label>
+            <input type="password" id="loginPassword" required>
+            <button type="submit">Giriş Yap</button>
+        </form>
+
+        <!-- Bilgi ve Düzenleme Bölümleri -->
+        <div id="infoSection" style="display: none;">
+            <h2>Kullanıcı Bilgileri</h2>
+            <p id="infoMessage"></p>
+        </div>
+
+        <div id="editSection" style="display: none;">
+            <h2>Kullanıcı Bilgilerini Güncelle</h2>
+            <label for="editUsername">Kullanıcı Adı:</label>
+            <input type="text" id="editUsername">
+            <label for="editPassword">Yeni Şifre:</label>
+            <input type="password" id="editPassword">
+            <button id="updateButton">Bilgileri Güncelle</button>
+        </div>
+
+        <div id="messageSection" style="display: none;">
+            <h2>Mesaj Gönder</h2>
+            <label for="messageRecipient">Kime:</label>
+            <input type="text" id="messageRecipient" placeholder="Kullanıcı adı">
+            <label for="messageContent">Mesaj:</label>
+            <textarea id="messageContent" rows="4" placeholder="Mesajınızı yazın"></textarea>
+            <button id="sendMessageButton">Mesaj Gönder</button>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
