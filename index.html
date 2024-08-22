@@ -30,8 +30,6 @@
                 <input type="password" id="loginPassword" required>
                 <button type="submit">Giriş Yap</button>
             </form>
-            <!-- Yönetici giriş yaparsa görünecek "Yeni Hesap Oluştur" butonu -->
-            <button id="adminCreateAccountButton" style="display: none; margin-top: 10px;">Yeni Hesap Oluştur</button>
         </div>
 
         <!-- Kayıt Olma Bölümü -->
@@ -67,17 +65,15 @@
     </div>
 
     <script>
-        // Yönetici kullanıcı adları ve şifreleri
-        const adminCredentials = [
-            { username: "Yönetici", password: "A1" },
-            { username: "Yönetici2", password: "A2" }
-        ];
+        // Yönetici kullanıcı adı ve şifresi
+        const adminUsername = "Yönetici";
+        const adminPassword = "A1";
 
         // Kullanıcıları saklamak için localStorage kullanımı
         function getUsers() {
             const users = localStorage.getItem('users');
             return users ? JSON.parse(users) : [
-                ...adminCredentials.map(admin => ({ username: admin.username, password: admin.password, isAdmin: true, messages: [] }))
+                { username: adminUsername, password: adminPassword, isAdmin: true, messages: [] }
             ];
         }
 
@@ -130,9 +126,8 @@
             const username = document.getElementById('loginUsername').value;
             const password = document.getElementById('loginPassword').value;
 
-            const adminUser = adminCredentials.find(admin => admin.username === username && admin.password === password);
-            if (adminUser) {
-                handleLoginSuccess({ username: adminUser.username, isAdmin: true });
+            if (username === adminUsername && password === adminPassword) {
+                handleLoginSuccess({ username: adminUsername, isAdmin: true });
             } else {
                 const user = users.find(u => u.username === username && u.password === password);
                 if (user) {
@@ -151,7 +146,6 @@
             document.getElementById('registerSection').style.display = 'none';
             document.getElementById('messageSection').style.display = 'none';
             document.getElementById('notificationSection').style.display = 'none';
-            document.getElementById('adminCreateAccountButton').style.display = 'none';
         });
 
         // Giriş Başarılı
@@ -166,7 +160,6 @@
 
             if (user.isAdmin) {
                 document.getElementById('messageSection').style.display = 'block';
-                document.getElementById('adminCreateAccountButton').style.display = 'block';
 
                 // Yönetici mesaj gönderme
                 document.getElementById('sendMessageButton').addEventListener('click', function() {
@@ -188,9 +181,28 @@
 
                 // Yönetici duyuruları
                 const notificationsList = document.getElementById('notificationsList');
-                notificationsList.innerHTML = '';
                 users.forEach(u => {
                     if (!u.isAdmin && u.messages.length > 0) {
                         u.messages.forEach(msg => {
                             const listItem = document.createElement('li');
-                            listItem.textContent = `${
+                            listItem.textContent = `${msg.from}: ${msg.content}`;
+                            notificationsList.appendChild(listItem);
+                        });
+                    }
+                });
+                if (notificationsList.children.length > 0) {
+                    document.getElementById('notificationSection').style.display = 'block';
+                }
+            } else {
+                // Kullanıcı için gelen mesajları göster
+                const userMessages = user.messages;
+                if (userMessages.length > 0) {
+                    const messagesList = document.getElementById('notificationsList');
+                    messagesList.innerHTML = userMessages.map(msg => `<li><strong>${msg.from}:</strong> ${msg.content}</li>`).join('');
+                    document.getElementById('notificationSection').style.display = 'block';
+                }
+            }
+        }
+    </script>
+</body>
+</html>
