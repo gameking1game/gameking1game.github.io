@@ -10,7 +10,8 @@
         label, input, button { display: block; width: 100%; margin-bottom: 10px; }
         button { padding: 10px; background-color: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; }
         button:hover { background-color: #45a049; }
-        #loginSection, #registerSection, #notificationSection, #messageSection { display: none; }
+        #loginSection, #registerSection, #infoSection, #messageSection { display: none; }
+        #infoSection, #messageSection { margin-top: 20px; }
     </style>
 </head>
 <body>
@@ -43,32 +44,33 @@
             </form>
         </div>
 
-        <!-- Bildirim Bölümü -->
-        <div id="notificationSection">
-            <h2>Mesaj Var</h2>
+        <!-- Bilgi ve Mesaj Bölümleri -->
+        <div id="infoSection">
+            <h2>Hoşgeldiniz, <span id="userName"></span></h2>
+            <div id="notificationSection" style="display: none;">
+                <h3>Yönetici Duyuruları:</h3>
+                <ul id="notificationsList"></ul>
+            </div>
         </div>
 
-        <!-- Mesaj Bölümü -->
-        <div id="messageSection">
-            <h2>Mesajlar</h2>
-            <div id="adminActions" style="display: none;">
-                <h3>Mesaj Gönder</h3>
-                <label for="recipientUsername">Kime:</label>
-                <input type="text" id="recipientUsername" placeholder="Kullanıcı adı">
-                <label for="messageContent">Mesaj:</label>
-                <textarea id="messageContent" rows="4" placeholder="Mesajınızı yazın"></textarea>
-                <button id="sendMessageButton">Mesaj Gönder</button>
-            </div>
-            <div id="userMessages">
-                <h3>Gelen Mesajlar</h3>
-                <ul id="messagesList"></ul>
-            </div>
+        <div id="messageSection" style="display: none;">
+            <h3>Mesaj Gönder</h3>
+            <label for="recipientUsername">Kime:</label>
+            <input type="text" id="recipientUsername" placeholder="Kullanıcı adı">
+            <label for="messageContent">Mesaj:</label>
+            <textarea id="messageContent" rows="4" placeholder="Mesajınızı yazın"></textarea>
+            <button id="sendMessageButton">Mesaj Gönder</button>
         </div>
     </div>
 
     <script>
+        // Yönetici kullanıcı adı ve şifresi
+        const adminUsername = "Yönetici";
+        const adminPassword = "A1";
+
+        // Kullanıcıları saklamak için bir dizi
         const users = [
-            { username: "Yönetici", password: "Yönetici1", isAdmin: true, messages: [] }
+            { username: adminUsername, password: adminPassword, isAdmin: true, messages: [] }
         ];
 
         // Hesabın Var mı? Butonu
@@ -106,12 +108,15 @@
             const username = document.getElementById('loginUsername').value;
             const password = document.getElementById('loginPassword').value;
 
-            const user = users.find(u => u.username === username && u.password === password);
-
-            if (user) {
-                handleLoginSuccess(user);
+            if (username === adminUsername && password === adminPassword) {
+                handleLoginSuccess({ username: adminUsername, isAdmin: true });
             } else {
-                alert("Geçersiz kullanıcı adı veya şifre.");
+                const user = users.find(u => u.username === username && u.password === password);
+                if (user) {
+                    handleLoginSuccess(user);
+                } else {
+                    alert("Geçersiz kullanıcı adı veya şifre.");
+                }
             }
         });
 
@@ -119,10 +124,15 @@
         function handleLoginSuccess(user) {
             document.getElementById('loginSection').style.display = 'none';
             document.getElementById('registerSection').style.display = 'none';
+            document.getElementById('infoSection').style.display = 'block';
+
+            // Kullanıcı bilgilerini göster
+            document.getElementById('userName').textContent = user.username;
 
             if (user.isAdmin) {
                 document.getElementById('messageSection').style.display = 'block';
-                document.getElementById('adminActions').style.display = 'block';
+
+                // Yönetici mesaj gönderme
                 document.getElementById('sendMessageButton').addEventListener('click', function() {
                     const recipient = document.getElementById('recipientUsername').value;
                     const message = document.getElementById('messageContent').value;
@@ -138,14 +148,29 @@
                         alert('Kullanıcı bulunamadı.');
                     }
                 });
+
+                // Yönetici duyuruları
+                const notificationsList = document.getElementById('notificationsList');
+                users.forEach(u => {
+                    if (!u.isAdmin && u.messages.length > 0) {
+                        u.messages.forEach(msg => {
+                            const listItem = document.createElement('li');
+                            listItem.textContent = `${msg.from}: ${msg.content}`;
+                            notificationsList.appendChild(listItem);
+                        });
+                    }
+                });
+                if (notificationsList.children.length > 0) {
+                    document.getElementById('notificationSection').style.display = 'block';
+                }
             } else {
+                // Kullanıcı için gelen mesajları göster
                 const userMessages = user.messages;
                 if (userMessages.length > 0) {
-                    document.getElementById('notificationSection').style.display = 'block';
-                    const messagesList = document.getElementById('messagesList');
+                    const messagesList = document.getElementById('notificationsList');
                     messagesList.innerHTML = userMessages.map(msg => `<li><strong>${msg.from}:</strong> ${msg.content}</li>`).join('');
+                    document.getElementById('notificationSection').style.display = 'block';
                 }
-                document.getElementById('messageSection').style.display = 'block';
             }
         }
     </script>
