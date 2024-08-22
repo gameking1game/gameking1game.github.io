@@ -30,8 +30,6 @@
                 <input type="password" id="loginPassword" required>
                 <button type="submit">Giriş Yap</button>
             </form>
-            <!-- Yönetici giriş yaparsa görünecek "Hesap Oluştur" butonu -->
-            <button id="adminCreateAccountButton" style="display: none; margin-top: 10px;">Yeni Hesap Oluştur</button>
         </div>
 
         <!-- Kayıt Olma Bölümü -->
@@ -148,7 +146,6 @@
             document.getElementById('registerSection').style.display = 'none';
             document.getElementById('messageSection').style.display = 'none';
             document.getElementById('notificationSection').style.display = 'none';
-            document.getElementById('adminCreateAccountButton').style.display = 'none';
         });
 
         // Giriş Başarılı
@@ -163,7 +160,6 @@
 
             if (user.isAdmin) {
                 document.getElementById('messageSection').style.display = 'block';
-                document.getElementById('adminCreateAccountButton').style.display = 'block';
 
                 // Yönetici mesaj gönderme
                 document.getElementById('sendMessageButton').addEventListener('click', function() {
@@ -185,7 +181,6 @@
 
                 // Yönetici duyuruları
                 const notificationsList = document.getElementById('notificationsList');
-                notificationsList.innerHTML = '';
                 users.forEach(u => {
                     if (!u.isAdmin && u.messages.length > 0) {
                         u.messages.forEach(msg => {
@@ -201,4 +196,13 @@
             } else {
                 // Kullanıcı için gelen mesajları göster
                 const userMessages = user.messages;
-                const messagesList = document.getElementById
+                if (userMessages.length > 0) {
+                    const messagesList = document.getElementById('notificationsList');
+                    messagesList.innerHTML = userMessages.map(msg => `<li><strong>${msg.from}:</strong> ${msg.content}</li>`).join('');
+                    document.getElementById('notificationSection').style.display = 'block';
+                }
+            }
+        }
+    </script>
+</body>
+</html>
