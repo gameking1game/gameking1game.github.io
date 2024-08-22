@@ -185,6 +185,7 @@
 
                 // Yönetici duyuruları
                 const notificationsList = document.getElementById('notificationsList');
+                notificationsList.innerHTML = '';
                 users.forEach(u => {
                     if (!u.isAdmin && u.messages.length > 0) {
                         u.messages.forEach(msg => {
@@ -200,5 +201,4 @@
             } else {
                 // Kullanıcı için gelen mesajları göster
                 const userMessages = user.messages;
-                if (userMessages.length > 0) {
-                   
+                const messagesList = document.getElementById
