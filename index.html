@@ -93,13 +93,18 @@
 
         // Hesap Oluştur Butonu
         document.getElementById('createAccountButton').addEventListener('click', function() {
-            document.getElementById('registerSection').style.display = 'block';
-            document.getElementById('loginSection').style.display = 'none';
+            alert('GAME KING POYRAZ DİSCORD sunucusundan şifre alın');
         });
 
-        // Kayıt Olma Formu
+        // Kayıt Olma Formu (Sadece Yönetici Kullanıcı İçin)
         document.getElementById('registerForm').addEventListener('submit', function(e) {
             e.preventDefault();
+
+            if (!currentUser || !currentUser.isAdmin) {
+                alert("Sadece yönetici hesap oluşturabilir.");
+                return;
+            }
+
             const username = document.getElementById('registerUsername').value;
             const password = document.getElementById('registerPassword').value;
 
