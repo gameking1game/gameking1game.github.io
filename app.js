@@ -38,19 +38,20 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
 
     if (user) {
         alert("Giriş başarılı!");
-        showMessages(user);
+        handleLoginSuccess(user);
     } else {
         alert("Geçersiz kullanıcı adı veya şifre.");
     }
 });
 
-// Mesajları gösterme
-function showMessages(user) {
+// Giriş sonrası işlemler
+function handleLoginSuccess(user) {
+    // Giriş ekranlarını ve kayıt formunu gizle
     document.getElementById('loginSection').style.display = 'none';
     document.getElementById('registerSection').style.display = 'none';
-    document.getElementById('messageSection').style.display = 'block';
 
     if (user.isAdmin) {
+        document.getElementById('messageSection').style.display = 'block';
         document.getElementById('adminActions').style.display = 'block';
         document.getElementById('sendMessageButton').addEventListener('click', function() {
             const recipient = document.getElementById('recipientUsername').value;
@@ -66,12 +67,8 @@ function showMessages(user) {
             }
         });
     } else {
-        const messagesList = document.getElementById('messagesList');
-        messagesList.innerHTML = '';
-        user.messages.forEach(msg => {
-            const listItem = document.createElement('li');
-            listItem.textContent = `${msg.from}: ${msg.content}`;
-            messagesList.appendChild(listItem);
-        });
+        if (user.messages.length > 0) {
+            document.getElementById('notificationSection').style.display = 'block';
+        }
     }
 }
