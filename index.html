@@ -69,12 +69,20 @@
         const adminUsername = "Yönetici";
         const adminPassword = "A1";
 
-        // Kullanıcıları saklamak için bir dizi
-        const users = [
-            { username: adminUsername, password: adminPassword, isAdmin: true, messages: [] }
-        ];
+        // Kullanıcıları saklamak için localStorage kullanımı
+        function getUsers() {
+            const users = localStorage.getItem('users');
+            return users ? JSON.parse(users) : [
+                { username: adminUsername, password: adminPassword, isAdmin: true, messages: [] }
+            ];
+        }
+
+        function saveUsers(users) {
+            localStorage.setItem('users', JSON.stringify(users));
+        }
 
         // Kullanıcı bilgileri
+        let users = getUsers();
         let currentUser = null;
 
         // Hesabın Var mı? Butonu
@@ -99,6 +107,7 @@
                 alert('Bu kullanıcı adı zaten mevcut.');
             } else {
                 users.push({ username, password, isAdmin: false, messages: [] });
+                saveUsers(users);
                 alert('Hesap başarıyla oluşturuldu!');
                 document.getElementById('registerForm').reset();
                 document.getElementById('registerSection').style.display = 'none';
@@ -156,6 +165,7 @@
 
                     if (recipientUser) {
                         recipientUser.messages.push({ from: user.username, content: message });
+                        saveUsers(users);
                         alert('Mesaj gönderildi!');
                         document.getElementById('recipientUsername').value = '';
                         document.getElementById('messageContent').value = '';
