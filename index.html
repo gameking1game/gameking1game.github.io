@@ -30,6 +30,7 @@
                 <input type="password" id="loginPassword" required>
                 <button type="submit">Giriş Yap</button>
             </form>
+            <button id="adminCreateAccountButton" style="display: none; margin-top: 10px;">Hesap Oluştur</button>
         </div>
 
         <!-- Kayıt Olma Bölümü -->
@@ -65,11 +66,9 @@
     </div>
 
     <script>
-        // Yönetici kullanıcı adı ve şifresi
         const adminUsername = "Yönetici";
         const adminPassword = "A1";
 
-        // Kullanıcıları saklamak için localStorage kullanımı
         function getUsers() {
             const users = localStorage.getItem('users');
             return users ? JSON.parse(users) : [
@@ -81,22 +80,18 @@
             localStorage.setItem('users', JSON.stringify(users));
         }
 
-        // Kullanıcı bilgileri
         let users = getUsers();
         let currentUser = null;
 
-        // Hesabın Var mı? Butonu
         document.getElementById('hasAccountButton').addEventListener('click', function() {
             document.getElementById('loginSection').style.display = 'block';
             document.getElementById('registerSection').style.display = 'none';
         });
 
-        // Hesap Oluştur Butonu
         document.getElementById('createAccountButton').addEventListener('click', function() {
             alert('GAME KING POYRAZ DİSCORD sunucusundan şifre alın');
         });
 
-        // Kayıt Olma Formu (Sadece Yönetici Kullanıcı İçin)
         document.getElementById('registerForm').addEventListener('submit', function(e) {
             e.preventDefault();
 
@@ -120,7 +115,6 @@
             }
         });
 
-        // Giriş Yapma Formu
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const username = document.getElementById('loginUsername').value;
@@ -138,7 +132,6 @@
             }
         });
 
-        // Çıkış Yap Butonu
         document.getElementById('logoutButton').addEventListener('click', function() {
             currentUser = null;
             document.getElementById('infoSection').style.display = 'none';
@@ -148,20 +141,21 @@
             document.getElementById('notificationSection').style.display = 'none';
         });
 
-        // Giriş Başarılı
         function handleLoginSuccess(user) {
             currentUser = user;
             document.getElementById('loginSection').style.display = 'none';
             document.getElementById('registerSection').style.display = 'none';
             document.getElementById('infoSection').style.display = 'block';
 
-            // Kullanıcı bilgilerini göster
             document.getElementById('userName').textContent = user.username;
 
             if (user.isAdmin) {
                 document.getElementById('messageSection').style.display = 'block';
+                document.getElementById('adminCreateAccountButton').style.display = 'block';
+                document.getElementById('adminCreateAccountButton').addEventListener('click', function() {
+                    document.getElementById('registerSection').style.display = 'block';
+                });
 
-                // Yönetici mesaj gönderme
                 document.getElementById('sendMessageButton').addEventListener('click', function() {
                     const recipient = document.getElementById('recipientUsername').value;
                     const message = document.getElementById('messageContent').value;
@@ -179,7 +173,6 @@
                     }
                 });
 
-                // Yönetici duyuruları
                 const notificationsList = document.getElementById('notificationsList');
                 users.forEach(u => {
                     if (!u.isAdmin && u.messages.length > 0) {
@@ -194,7 +187,6 @@
                     document.getElementById('notificationSection').style.display = 'block';
                 }
             } else {
-                // Kullanıcı için gelen mesajları göster
                 const userMessages = user.messages;
                 if (userMessages.length > 0) {
                     const messagesList = document.getElementById('notificationsList');
