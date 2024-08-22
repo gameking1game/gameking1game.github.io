@@ -30,7 +30,7 @@
                 <input type="password" id="loginPassword" required>
                 <button type="submit">Giriş Yap</button>
             </form>
-            <!-- Yönetici giriş yaparsa görünecek "Hesap Oluştur" butonu -->
+            <!-- Yönetici giriş yaparsa görünecek "Yeni Hesap Oluştur" butonu -->
             <button id="adminCreateAccountButton" style="display: none; margin-top: 10px;">Yeni Hesap Oluştur</button>
         </div>
 
@@ -67,15 +67,17 @@
     </div>
 
     <script>
-        // Yönetici kullanıcı adı ve şifresi
-        const adminUsername = "Yönetici";
-        const adminPassword = "A1";
+        // Yönetici kullanıcı adları ve şifreleri
+        const adminCredentials = [
+            { username: "Yönetici", password: "A1" },
+            { username: "Yönetici2", password: "A2" }
+        ];
 
         // Kullanıcıları saklamak için localStorage kullanımı
         function getUsers() {
             const users = localStorage.getItem('users');
             return users ? JSON.parse(users) : [
-                { username: adminUsername, password: adminPassword, isAdmin: true, messages: [] }
+                ...adminCredentials.map(admin => ({ username: admin.username, password: admin.password, isAdmin: true, messages: [] }))
             ];
         }
 
@@ -128,8 +130,9 @@
             const username = document.getElementById('loginUsername').value;
             const password = document.getElementById('loginPassword').value;
 
-            if (username === adminUsername && password === adminPassword) {
-                handleLoginSuccess({ username: adminUsername, isAdmin: true });
+            const adminUser = adminCredentials.find(admin => admin.username === username && admin.password === password);
+            if (adminUser) {
+                handleLoginSuccess({ username: adminUser.username, isAdmin: true });
             } else {
                 const user = users.find(u => u.username === username && u.password === password);
                 if (user) {
@@ -190,15 +193,4 @@
                     if (!u.isAdmin && u.messages.length > 0) {
                         u.messages.forEach(msg => {
                             const listItem = document.createElement('li');
-                            listItem.textContent = `${msg.from}: ${msg.content}`;
-                            notificationsList.appendChild(listItem);
-                        });
-                    }
-                });
-                if (notificationsList.children.length > 0) {
-                    document.getElementById('notificationSection').style.display = 'block';
-                }
-            } else {
-                // Kullanıcı için gelen mesajları göster
-                const userMessages = user.messages;
-                if (userMessages.length > 
+                            listItem.textContent = `${
