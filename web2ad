@@ -1,3 +1,17 @@
-<footer>
-    <p>KİNG GAME PLAY MEDİA GROUP TARAFINDAN YAPILMIŞTIR</p>
-</footer>
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giriş Sistemi</title>
+    <!-- CSS ve diğer etiketler burada -->
+</head>
+<body>
+    <!-- Web sayfanızın içeriği burada olacak -->
+
+    <!-- Footer Kısmı -->
+    <footer>
+        <p>KİNG GAME PLAY MEDİA GROUP TARAFINDAN YAPILMIŞTIR</p>
+    </footer>
+</body>
+</html>
