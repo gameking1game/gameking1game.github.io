@@ -1,48 +1,44 @@
-<div class="container">
-    <h2>Kayıt Ol</h2>
-    <form id="registerForm">
-        <label for="registerUsername">Kullanıcı Adı:</label>
-        <input type="text" id="registerUsername" required>
-        <label for="registerPassword">Şifre:</label>
-        <input type="password" id="registerPassword" required>
-        <button type="submit">Kayıt Ol</button>
-    </form>
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giriş Sistemi</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .container { max-width: 400px; margin: auto; padding: 20px; border: 1px solid #ccc; border-radius: 10px; }
+        label, input, button { display: block; width: 100%; margin-bottom: 10px; }
+        button { padding: 10px; background-color: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background-color: #45a049; }
+        #messageSection { display: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Giriş Yap</h2>
+        <form id="loginForm">
+            <label for="loginUsername">Kullanıcı Adı:</label>
+            <input type="text" id="loginUsername" required>
+            <label for="loginPassword">Şifre:</label>
+            <input type="password" id="loginPassword" required>
+            <button type="submit">Giriş Yap</button>
+        </form>
 
-    <h2>Giriş Yap</h2>
-    <form id="loginForm">
-        <label for="loginUsername">Kullanıcı Adı:</label>
-        <input type="text" id="loginUsername" required>
-        <label for="loginPassword">Şifre:</label>
-        <input type="password" id="loginPassword" required>
-        <button type="submit">Giriş Yap</button>
-    </form>
-
-    <!-- Bilgi ve Düzenleme Bölümleri -->
-    <div id="infoSection" style="display: none;">
-        <h2>Kullanıcı Bilgileri</h2>
-        <p id="infoMessage"></p>
+        <div id="messageSection">
+            <h2>Mesajlar</h2>
+            <div id="adminActions" style="display: none;">
+                <h3>Mesaj Gönder</h3>
+                <input type="text" id="recipientUsername" placeholder="Kullanıcı adı">
+                <textarea id="messageContent" placeholder="Mesajınızı yazın"></textarea>
+                <button id="sendMessageButton">Mesaj Gönder</button>
+            </div>
+            <div id="userMessages">
+                <h3>Gelen Mesajlar</h3>
+                <ul id="messagesList"></ul>
+            </div>
+        </div>
     </div>
 
-    <div id="editSection" style="display: none;">
-        <h2>Kullanıcı Bilgilerini Güncelle</h2>
-        <label for="editUsername">Kullanıcı Adı:</label>
-        <input type="text" id="editUsername">
-        <label for="editPassword">Yeni Şifre:</label>
-        <input type="password" id="editPassword">
-        <button id="updateButton">Bilgileri Güncelle</button>
-    </div>
-
-    <div id="messageSection" style="display: none;">
-        <h2>Mesaj Gönder</h2>
-        <label for="messageRecipient">Kime:</label>
-        <input type="text" id="messageRecipient" placeholder="Kullanıcı adı">
-        <label for="messageContent">Mesaj:</label>
-        <textarea id="messageContent" rows="4" placeholder="Mesajınızı yazın"></textarea>
-        <button id="sendMessageButton">Mesaj Gönder</button>
-    </div>
-
-    <!-- Çıkış Yap Butonu -->
-    <div id="logoutSection" style="display: none;">
-        <button id="logoutButton">Çıkış Yap</button>
-    </div>
-</div>
+    <script src="script.js"></script>
+</body>
+</html>
