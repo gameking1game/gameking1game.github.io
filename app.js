@@ -3,6 +3,31 @@ const users = [
     { username: "Yönetici", password: "Yönetici1", isAdmin: true, messages: [] }
 ];
 
+// Başlangıçta butonları göster
+document.getElementById('hasAccountButton').addEventListener('click', function() {
+    document.getElementById('loginSection').style.display = 'block';
+    document.getElementById('registerSection').style.display = 'none';
+});
+document.getElementById('createAccountButton').addEventListener('click', function() {
+    document.getElementById('registerSection').style.display = 'block';
+    document.getElementById('loginSection').style.display = 'none';
+});
+
+// Hesap oluşturma
+document.getElementById('registerForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const username = document.getElementById('registerUsername').value;
+    const password = document.getElementById('registerPassword').value;
+
+    if (users.find(u => u.username === username)) {
+        alert('Bu kullanıcı adı zaten mevcut.');
+    } else {
+        users.push({ username, password, isAdmin: false, messages: [] });
+        alert('Hesap başarıyla oluşturuldu!');
+        document.getElementById('registerForm').reset();
+    }
+});
+
 // Kullanıcı giriş kontrolü
 document.getElementById('loginForm').addEventListener('submit', function(e) {
     e.preventDefault();
@@ -21,7 +46,8 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
 
 // Mesajları gösterme
 function showMessages(user) {
-    document.getElementById('loginForm').style.display = 'none';
+    document.getElementById('loginSection').style.display = 'none';
+    document.getElementById('registerSection').style.display = 'none';
     document.getElementById('messageSection').style.display = 'block';
 
     if (user.isAdmin) {
