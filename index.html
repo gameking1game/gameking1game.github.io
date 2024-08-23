@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Giriş Sistemi</title>
     <style>
-        body { font-family: Arial, sans-serif; position: relative; min-height: 100vh; }
+        body { font-family: Arial, sans-serif; }
         .container { max-width: 400px; margin: auto; padding: 20px; border: 1px solid #ccc; border-radius: 10px; }
         label, input, button { display: block; width: 100%; margin-bottom: 10px; }
         button { padding: 10px; background-color: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; }
@@ -14,9 +14,9 @@
         #infoSection { margin-top: 20px; }
         .red-button { background-color: red; color: white; padding: 10px; border: none; border-radius: 5px; cursor: pointer; margin-top: 20px; }
         .red-button:hover { background-color: darkred; }
-        .green-button { background-color: green; color: white; padding: 10px; border: none; border-radius: 5px; cursor: pointer; margin-top: 10px; }
+        .green-button { background-color: green; color: white; padding: 10px; border: none; border-radius: 5px; cursor: pointer; margin-top: 20px; }
         .green-button:hover { background-color: darkgreen; }
-        .footer { position: absolute; bottom: 0; width: 100%; text-align: center; padding: 10px 0; background-color: #f1f1f1; }
+        footer { text-align: center; margin-top: 20px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -42,12 +42,14 @@
             <h2>Hoşgeldiniz, <span id="userName"></span></h2>
             <button id="logoutButton">Çıkış Yap</button>
             <button id="accountActionButton" class="red-button" style="display: none;">HESAP İŞLEM</button>
-            <button id="sendAnnouncementButton" class="green-button" style="display: none;">DUYURU GÖNDER</button>
-            <button id="viewAnnouncementsButton" class="green-button">GELEN DUYURULAR</button>
+            <button id="sendMessageButton" class="green-button" style="display: none;">MESAJ GÖNDER</button>
         </div>
     </div>
 
-    <div class="footer">KING GAME PLAY MEDİA GROUP</div>
+    <!-- Footer -->
+    <footer>
+        KING GAME PLAY MEDİA GROUP
+    </footer>
 
     <script>
         // Yönetici kullanıcı adı ve şifresi
@@ -67,7 +69,6 @@
         // Kullanıcı bilgileri
         let users = getUsers();
         let currentUser = null;
-        let announcements = [];
 
         // Hesabın Var mı? Butonu
         document.getElementById('hasAccountButton').addEventListener('click', function() {
@@ -109,10 +110,10 @@
             document.getElementById('infoSection').style.display = 'block';
             document.getElementById('userName').textContent = user.username;
 
-            // Yalnızca Yönetici için kırmızı "HESAP İŞLEM" ve "DUYURU GÖNDER" butonlarını göster
+            // Yalnızca Yönetici için kırmızı "HESAP İŞLEM" ve yeşil "MESAJ GÖNDER" butonlarını göster
             if (user.isAdmin) {
                 document.getElementById('accountActionButton').style.display = 'block';
-                document.getElementById('sendAnnouncementButton').style.display = 'block';
+                document.getElementById('sendMessageButton').style.display = 'block';
             }
         }
 
@@ -138,32 +139,21 @@
             }
         });
 
-        // "DUYURU GÖNDER" Butonu ile Duyuru Gönderme
-        document.getElementById('sendAnnouncementButton').addEventListener('click', function() {
+        // "MESAJ GÖNDER" Butonu ile Mesaj Gönderme
+        document.getElementById('sendMessageButton').addEventListener('click', function() {
             if (currentUser && currentUser.isAdmin) {
-                const announcement = prompt("Duyuru mesajını girin:");
+                const recipient = prompt("Mesaj göndermek istediğiniz kullanıcı adını girin:");
+                const message = prompt("Göndermek istediğiniz mesajı yazın:");
 
-                if (announcement) {
-                    announcements.push(announcement);
-                    localStorage.setItem('announcements', JSON.stringify(announcements));
-                    alert("Duyuru gönderildi!");
+                const recipientUser = users.find(u => u.username === recipient);
+
+                if (recipientUser) {
+                    alert(`Mesajınız "${recipientUser.username}" adlı kullanıcıya gönderildi.`);
                 } else {
-                    alert("Duyuru boş olamaz.");
+                    alert("Kullanıcı bulunamadı.");
                 }
             } else {
-                alert("Sadece Yönetici duyuru gönderebilir.");
-            }
-        });
-
-        // "GELEN DUYURULAR" Butonu ile Duyuruları Görüntüleme
-        document.getElementById('viewAnnouncementsButton').addEventListener('click', function() {
-            const storedAnnouncements = localStorage.getItem('announcements');
-            const announcementsToShow = storedAnnouncements ? JSON.parse(storedAnnouncements) : [];
-
-            if (announcementsToShow.length > 0) {
-                alert("Gelen Duyurular:\n\n" + announcementsToShow.join('\n\n'));
-            } else {
-                alert("Henüz bir duyuru yok.");
+                alert("Sadece Yönetici bu butonu kullanabilir.");
             }
         });
     </script>
