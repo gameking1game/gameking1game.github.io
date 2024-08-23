@@ -68,7 +68,7 @@
 
         <!-- Yönetici Butonları -->
         <div class="admin-buttons">
-            <button id="announcementButton" style="background-color: green; color: white;">Duyuru Yap</button>
+            <button id="announcementButton" style="background-color: green; color: white; display: none;">Duyuru Yap</button>
             <button id="createAccountButton" style="background-color: red; color: white;">Hesap İşlem</button>
         </div>
     </div>
@@ -198,4 +198,5 @@
                 const userMessages = user.messages;
                 if (userMessages.length > 0) {
                     const messagesList = document.getElementById('notificationsList');
-                    messagesList.innerHTML = userMessages.map(msg => `<li><strong>${msg.from}:</strong
+                    messagesList.innerHTML = userMessages.map(msg => `<li><strong>${msg.from}:</strong> ${msg.content}</li>`).join('');
+                    document.getElementBy
