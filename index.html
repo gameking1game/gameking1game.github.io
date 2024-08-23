@@ -12,6 +12,8 @@
         button:hover { background-color: #45a049; }
         #loginSection, #registerSection, #infoSection, #messageSection { display: none; }
         #infoSection, #messageSection { margin-top: 20px; }
+        .red-button { background-color: red; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; }
+        .red-button:hover { background-color: darkred; }
     </style>
 </head>
 <body>
@@ -61,8 +63,8 @@
                 <button id="sendMessageButton">Mesaj Gönder</button>
             </div>
 
-            <!-- HESAP KAYIT2 Butonu (Yönetici2 için) -->
-            <button id="createAccountButton2" style="display: none;">HESAP KAYIT2</button>
+            <!-- KIRMIZI HESAP İŞLEM Butonu (Yönetici için) -->
+            <button id="accountActionButton" class="red-button" style="display: none;">HESAP İŞLEM</button>
         </div>
     </div>
 
@@ -143,7 +145,7 @@
             document.getElementById('registerSection').style.display = 'none';
             document.getElementById('messageSection').style.display = 'none';
             document.getElementById('notificationSection').style.display = 'none';
-            document.getElementById('createAccountButton2').style.display = 'none';
+            document.getElementById('accountActionButton').style.display = 'none';
         });
 
         // Giriş Başarılı
@@ -158,6 +160,7 @@
 
             if (user.isAdmin) {
                 document.getElementById('messageSection').style.display = 'block';
+                document.getElementById('accountActionButton').style.display = 'block';
             }
 
             // "HESAP KAYIT2" butonunu yalnızca Yönetici2 için göster
@@ -166,9 +169,9 @@
             }
         }
 
-        // "HESAP KAYIT2" butonuna basılınca yeni hesap oluştur
-        document.getElementById('createAccountButton2').addEventListener('click', function() {
-            if (currentUser && currentUser.isAdmin2) {
+        // KIRMIZI "HESAP İŞLEM" butonuna basılınca yeni hesap oluştur
+        document.getElementById('accountActionButton').addEventListener('click', function() {
+            if (currentUser && currentUser.isAdmin) {
                 const newUsername = prompt("Yeni kullanıcı adı girin:");
                 const newPassword = prompt("Yeni şifre girin:");
 
@@ -182,7 +185,7 @@
                     }
                 }
             } else {
-                alert("Sadece Yönetici2 bu butonu kullanabilir.");
+                alert("Sadece Yönetici bu butonu kullanabilir.");
             }
         });
     </script>
