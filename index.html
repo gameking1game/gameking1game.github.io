@@ -20,7 +20,7 @@
 <body>
     <div class="container">
         <h2>Hoş Geldiniz</h2>
-        <button id="hasAccountButton">Hesabın Var mı?</button>
+        <button id="hasAccountButton">Giriş Yap</button>
         <button id="createAccountButton">Hesap Oluştur</button>
 
         <!-- Giriş Yapma Bölümü -->
@@ -69,7 +69,7 @@
         <!-- Yönetici Butonları -->
         <div class="admin-buttons">
             <button id="announcementButton" style="background-color: green; color: white;">Duyuru Yap</button>
-            <button id="createAccountButton" style="background-color: red; color: white; display: none;">Hesap İşlem</button>
+            <button id="hesapIslemButton" style="background-color: red; color: white; display: none;">Hesap İşlem</button>
         </div>
     </div>
 
@@ -79,13 +79,11 @@
     </div>
 
     <script>
-        // Yönetici kullanıcı adları ve şifreleri
         const adminAccounts = [
             { username: "Yönetici", password: "A1" },
             { username: "Yönetici2", password: "A2" }
         ];
 
-        // Kullanıcıları saklamak için localStorage kullanımı
         function getUsers() {
             const users = localStorage.getItem('users');
             return users ? JSON.parse(users) : [];
@@ -95,22 +93,19 @@
             localStorage.setItem('users', JSON.stringify(users));
         }
 
-        // Kullanıcı bilgileri
         let users = getUsers();
         let currentUser = null;
 
-        // Hesabın Var mı? Butonu
         document.getElementById('hasAccountButton').addEventListener('click', function() {
             document.getElementById('loginSection').style.display = 'block';
             document.getElementById('registerSection').style.display = 'none';
         });
 
-        // Hesap Oluştur Butonu
         document.getElementById('createAccountButton').addEventListener('click', function() {
-            alert('GAME KING POYRAZ DİSCORD sunucusundan şifre alın');
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('registerSection').style.display = 'block';
         });
 
-        // Kayıt Olma Formu (Sadece Yönetici Kullanıcı İçin)
         document.getElementById('registerForm').addEventListener('submit', function(e) {
             e.preventDefault();
 
@@ -134,7 +129,6 @@
             }
         });
 
-        // Giriş Yapma Formu
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const username = document.getElementById('loginUsername').value;
@@ -149,7 +143,6 @@
             }
         });
 
-        // Çıkış Yap Butonu
         document.getElementById('logoutButton').addEventListener('click', function() {
             currentUser = null;
             document.getElementById('infoSection').style.display = 'none';
@@ -158,29 +151,25 @@
             document.getElementById('messageSection').style.display = 'none';
             document.getElementById('notificationSection').style.display = 'none';
             document.getElementById('announcementButton').style.display = 'none';
-            document.getElementById('createAccountButton').style.display = 'none';
+            document.getElementById('hesapIslemButton').style.display = 'none';
         });
 
-        // Giriş Başarılı
         function handleLoginSuccess(user) {
             currentUser = user;
             document.getElementById('loginSection').style.display = 'none';
             document.getElementById('registerSection').style.display = 'none';
             document.getElementById('infoSection').style.display = 'block';
 
-            // Kullanıcı bilgilerini göster
             document.getElementById('userName').textContent = user.username;
 
             if (adminAccounts.some(acc => acc.username === user.username)) {
                 document.getElementById('messageSection').style.display = 'block';
                 document.getElementById('announcementButton').style.display = 'inline-block';
 
-                // Kırmızı Hesap İşlem Butonu sadece Yönetici hesabında
                 if (user.username === "Yönetici") {
-                    document.getElementById('createAccountButton').style.display = 'inline-block';
+                    document.getElementById('hesapIslemButton').style.display = 'inline-block';
                 }
 
-                // Yönetici duyuru yapma
                 document.getElementById('announcementButton').addEventListener('click', function() {
                     const message = prompt('Lütfen duyurunuzu yazın:');
                     if (message) {
@@ -194,11 +183,14 @@
                     }
                 });
             } else {
-                // Kullanıcı için gelen mesajları göster
                 const userMessages = user.messages;
                 if (userMessages.length > 0) {
                     const messagesList = document.getElementById('notificationsList');
                     messagesList.innerHTML = userMessages.map(msg => `<li><strong>${msg.from}:</strong> ${msg.content}</li>`).join('');
                     document.getElementById('notificationSection').style.display = 'block';
                 }
-           
+            }
+        }
+    </script>
+</body>
+</html>
