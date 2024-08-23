@@ -10,7 +10,7 @@
         label, input, button { display: block; width: 100%; margin-bottom: 10px; }
         button { padding: 10px; background-color: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; }
         button:hover { background-color: #45a049; }
-        #loginSection, #registerSection, #infoSection, #messageSection, #createAccountButton2 { display: none; }
+        #loginSection, #registerSection, #infoSection, #messageSection { display: none; }
         #infoSection, #messageSection { margin-top: 20px; }
     </style>
 </head>
@@ -32,7 +32,7 @@
             </form>
         </div>
 
-        <!-- Kayıt Olma Bölümü (Yönetici için) -->
+        <!-- Kayıt Olma Bölümü -->
         <div id="registerSection">
             <h2>Hesap Oluştur</h2>
             <form id="registerForm">
@@ -44,112 +44,165 @@
             </form>
         </div>
 
-        <!-- Yönetici için Hesap Oluştur2 Bölümü -->
-        <div id="createAccountButton2">
-            <h2>Hesap Oluştur2 (Sadece Yönetici2)</h2>
-            <form id="registerForm2">
-                <label for="registerUsername2">Kullanıcı Adı:</label>
-                <input type="text" id="registerUsername2" required>
-                <label for="registerPassword2">Şifre:</label>
-                <input type="password" id="registerPassword2" required>
-                <button type="submit">Kayıt Ol</button>
-            </form>
-        </div>
-
-        <!-- Bilgi Bölümü -->
+        <!-- Bilgi ve Mesaj Bölümleri -->
         <div id="infoSection">
             <h2>Hoşgeldiniz, <span id="userName"></span></h2>
             <button id="logoutButton">Çıkış Yap</button>
+            <div id="notificationSection" style="display: none;">
+                <h3>Yönetici Duyuruları:</h3>
+                <ul id="notificationsList"></ul>
+            </div>
+        </div>
+
+        <div id="messageSection" style="display: none;">
+            <h3>Mesaj Gönder</h3>
+            <label for="recipientUsername">Kime:</label>
+            <input type="text" id="recipientUsername" placeholder="Kullanıcı adı">
+            <label for="messageContent">Mesaj:</label>
+            <textarea id="messageContent" rows="4" placeholder="Mesajınızı yazın"></textarea>
+            <button id="sendMessageButton">Mesaj Gönder</button>
         </div>
     </div>
 
     <script>
-        const admin1 = { username: "Yönetici", password: "Yönetici1", isAdmin: true };
-        const admin2 = { username: "Yönetici2", password: "A1", isAdmin2: true };
-        let users = JSON.parse(localStorage.getItem('users')) || [admin1, admin2];
-        let currentUser = null;
+        // Yönetici kullanıcı adı ve şifresi
+        const adminUsername = "Yönetici";
+        const adminPassword = "A1";
 
-        function saveUsers() {
+        // Kullanıcıları saklamak için localStorage kullanımı
+        function getUsers() {
+            const users = localStorage.getItem('users');
+            return users ? JSON.parse(users) : [
+                { username: adminUsername, password: adminPassword, isAdmin: true, messages: [] }
+            ];
+        }
+
+        function saveUsers(users) {
             localStorage.setItem('users', JSON.stringify(users));
         }
 
+        // Kullanıcı bilgileri
+        let users = getUsers();
+        let currentUser = null;
+
+        // Hesabın Var mı? Butonu
         document.getElementById('hasAccountButton').addEventListener('click', function() {
             document.getElementById('loginSection').style.display = 'block';
             document.getElementById('registerSection').style.display = 'none';
-            document.getElementById('createAccountButton2').style.display = 'none';
         });
 
+        // Hesap Oluştur Butonu
         document.getElementById('createAccountButton').addEventListener('click', function() {
             alert('GAME KING POYRAZ DİSCORD sunucusundan şifre alın');
         });
 
+        // Kayıt Olma Formu (Sadece Yönetici Kullanıcı İçin)
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            if (!currentUser || !currentUser.isAdmin) {
+                alert("Sadece yönetici hesap oluşturabilir.");
+                return;
+            }
+
+            const username = document.getElementById('registerUsername').value;
+            const password = document.getElementById('registerPassword').value;
+
+            if (users.find(u => u.username === username)) {
+                alert('Bu kullanıcı adı zaten mevcut.');
+            } else {
+                users.push({ username, password, isAdmin: false, messages: [] });
+                saveUsers(users);
+                alert('Hesap başarıyla oluşturuldu!');
+                document.getElementById('registerForm').reset();
+                document.getElementById('registerSection').style.display = 'none';
+                document.getElementById('loginSection').style.display = 'block';
+            }
+        });
+
+        // Giriş Yapma Formu
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const username = document.getElementById('loginUsername').value;
             const password = document.getElementById('loginPassword').value;
 
-            const user = users.find(u => u.username === username && u.password === password);
-
-            if (user) {
-                currentUser = user;
-                document.getElementById('loginSection').style.display = 'none';
-                document.getElementById('infoSection').style.display = 'block';
-                document.getElementById('userName').textContent = user.username;
-
-                if (user.isAdmin) {
-                    document.getElementById('registerSection').style.display = 'block';
-                }
-                if (user.isAdmin2) {
-                    document.getElementById('createAccountButton2').style.display = 'block';
-                }
+            if (username === adminUsername && password === adminPassword) {
+                handleLoginSuccess({ username: adminUsername, isAdmin: true });
             } else {
-                alert("Geçersiz kullanıcı adı veya şifre.");
-            }
-        });
-
-        document.getElementById('registerForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            if (currentUser && currentUser.isAdmin) {
-                const username = document.getElementById('registerUsername').value;
-                const password = document.getElementById('registerPassword').value;
-
-                if (users.find(u => u.username === username)) {
-                    alert('Bu kullanıcı adı zaten mevcut.');
+                const user = users.find(u => u.username === username && u.password === password);
+                if (user) {
+                    handleLoginSuccess(user);
                 } else {
-                    users.push({ username, password, isAdmin: false });
-                    saveUsers();
-                    alert('Hesap başarıyla oluşturuldu!');
+                    alert("Geçersiz kullanıcı adı veya şifre.");
                 }
-            } else {
-                alert("Sadece yönetici hesap oluşturabilir.");
             }
         });
 
-        document.getElementById('registerForm2').addEventListener('submit', function(e) {
-            e.preventDefault();
-            if (currentUser && currentUser.isAdmin2) {
-                const username = document.getElementById('registerUsername2').value;
-                const password = document.getElementById('registerPassword2').value;
-
-                if (users.find(u => u.username === username)) {
-                    alert('Bu kullanıcı adı zaten mevcut.');
-                } else {
-                    users.push({ username, password, isAdmin: false });
-                    saveUsers();
-                    alert('Hesap başarıyla oluşturuldu!');
-                }
-            } else {
-                alert("Sadece Yönetici2 bu butonu kullanabilir.");
-            }
-        });
-
+        // Çıkış Yap Butonu
         document.getElementById('logoutButton').addEventListener('click', function() {
             currentUser = null;
-            document.getElementById('loginSection').style.display = 'block';
             document.getElementById('infoSection').style.display = 'none';
+            document.getElementById('loginSection').style.display = 'block';
             document.getElementById('registerSection').style.display = 'none';
-            document.getElementById('createAccountButton2').style.display = 'none';
+            document.getElementById('messageSection').style.display = 'none';
+            document.getElementById('notificationSection').style.display = 'none';
         });
+
+        // Giriş Başarılı
+        function handleLoginSuccess(user) {
+            currentUser = user;
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('registerSection').style.display = 'none';
+            document.getElementById('infoSection').style.display = 'block';
+
+            // Kullanıcı bilgilerini göster
+            document.getElementById('userName').textContent = user.username;
+
+            if (user.isAdmin) {
+                document.getElementById('messageSection').style.display = 'block';
+
+                // Yönetici mesaj gönderme
+                document.getElementById('sendMessageButton').addEventListener('click', function() {
+                    const recipient = document.getElementById('recipientUsername').value;
+                    const message = document.getElementById('messageContent').value;
+
+                    const recipientUser = users.find(u => u.username === recipient);
+
+                    if (recipientUser) {
+                        recipientUser.messages.push({ from: user.username, content: message });
+                        saveUsers(users);
+                        alert('Mesaj gönderildi!');
+                        document.getElementById('recipientUsername').value = '';
+                        document.getElementById('messageContent').value = '';
+                    } else {
+                        alert('Kullanıcı bulunamadı.');
+                    }
+                });
+
+                // Yönetici duyuruları
+                const notificationsList = document.getElementById('notificationsList');
+                users.forEach(u => {
+                    if (!u.isAdmin && u.messages.length > 0) {
+                        u.messages.forEach(msg => {
+                            const listItem = document.createElement('li');
+                            listItem.textContent = `${msg.from}: ${msg.content}`;
+                            notificationsList.appendChild(listItem);
+                        });
+                    }
+                });
+                if (notificationsList.children.length > 0) {
+                    document.getElementById('notificationSection').style.display = 'block';
+                }
+            } else {
+                // Kullanıcı için gelen mesajları göster
+                const userMessages = user.messages;
+                if (userMessages.length > 0) {
+                    const messagesList = document.getElementById('notificationsList');
+                    messagesList.innerHTML = userMessages.map(msg => `<li><strong>${msg.from}:</strong> ${msg.content}</li>`).join('');
+                    document.getElementById('notificationSection').style.display = 'block';
+                }
+            }
+        }
     </script>
 </body>
 </html>
