@@ -10,11 +10,10 @@
         label, input, button { display: block; width: 100%; margin-bottom: 10px; }
         button { padding: 10px; background-color: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; }
         button:hover { background-color: #45a049; }
-        #loginSection, #registerSection, #infoSection, #messageSection { display: none; }
-        #infoSection, #messageSection { margin-top: 20px; }
-        #accountActionBtn { background-color: red; color: white; display: none; }
-        #announcementBtn { background-color: green; color: white; display: none; }
-        footer { text-align: center; margin-top: 20px; font-weight: bold; }
+        #loginSection, #registerSection, #infoSection { display: none; }
+        #infoSection { margin-top: 20px; }
+        .red-button { background-color: red; color: white; padding: 10px; border: none; border-radius: 5px; cursor: pointer; margin-top: 20px; }
+        .red-button:hover { background-color: darkred; }
     </style>
 </head>
 <body>
@@ -35,49 +34,45 @@
             </form>
         </div>
 
-        <!-- Bilgi ve Mesaj Bölümleri -->
+        <!-- Bilgi Bölümü -->
         <div id="infoSection">
             <h2>Hoşgeldiniz, <span id="userName"></span></h2>
             <button id="logoutButton">Çıkış Yap</button>
-            <button id="accountActionBtn">HESAP İŞLEM</button>
-            <button id="announcementBtn">DUYURU</button>
+            <button id="accountActionButton" class="red-button" style="display: none;">HESAP İŞLEM</button>
         </div>
     </div>
 
-    <!-- Footer -->
-    <footer>
-        KING GAME PLAY MEDİA GROUP
-    </footer>
-
     <script>
+        // Yönetici kullanıcı adı ve şifresi
         const adminUsername = "Yönetici";
         const adminPassword = "A1";
-        const admin2Username = "Yönetici2";
-        const admin2Password = "A2";
 
+        // Kullanıcıları saklamak için localStorage kullanımı
         function getUsers() {
             const users = localStorage.getItem('users');
-            return users ? JSON.parse(users) : [
-                { username: adminUsername, password: adminPassword, isAdmin: true, messages: [] },
-                { username: admin2Username, password: admin2Password, isAdmin: true, messages: [] }
-            ];
+            return users ? JSON.parse(users) : [{ username: adminUsername, password: adminPassword, isAdmin: true }];
         }
 
         function saveUsers(users) {
             localStorage.setItem('users', JSON.stringify(users));
         }
 
+        // Kullanıcı bilgileri
         let users = getUsers();
         let currentUser = null;
 
+        // Hesabın Var mı? Butonu
         document.getElementById('hasAccountButton').addEventListener('click', function() {
             document.getElementById('loginSection').style.display = 'block';
+            document.getElementById('infoSection').style.display = 'none';
         });
 
+        // Hesap Oluştur Butonu
         document.getElementById('createAccountButton').addEventListener('click', function() {
             alert('GAME KING POYRAZ DİSCORD sunucusundan şifre alın');
         });
 
+        // Giriş Yapma Formu
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const username = document.getElementById('loginUsername').value;
@@ -86,39 +81,52 @@
             const user = users.find(u => u.username === username && u.password === password);
 
             if (user) {
-                currentUser = user;
-                document.getElementById('loginSection').style.display = 'none';
-                document.getElementById('infoSection').style.display = 'block';
-                document.getElementById('userName').textContent = currentUser.username;
-
-                if (currentUser.isAdmin) {
-                    document.getElementById('accountActionBtn').style.display = 'block';
-                    document.getElementById('announcementBtn').style.display = 'block';
-                }
+                handleLoginSuccess(user);
             } else {
                 alert("Geçersiz kullanıcı adı veya şifre.");
             }
         });
 
-        document.getElementById('accountActionBtn').addEventListener('click', function() {
-            const username = prompt('Yeni hesap için kullanıcı adı:');
-            const password = prompt('Yeni hesap için şifre:');
-
-            if (username && password) {
-                if (users.find(u => u.username === username)) {
-                    alert('Bu kullanıcı adı zaten mevcut.');
-                } else {
-                    users.push({ username, password, isAdmin: false, messages: [] });
-                    saveUsers(users);
-                    alert('Yeni hesap başarıyla oluşturuldu!');
-                }
-            }
-        });
-
+        // Çıkış Yap Butonu
         document.getElementById('logoutButton').addEventListener('click', function() {
             currentUser = null;
             document.getElementById('infoSection').style.display = 'none';
             document.getElementById('loginSection').style.display = 'block';
+        });
+
+        // Giriş Başarılı
+        function handleLoginSuccess(user) {
+            currentUser = user;
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('infoSection').style.display = 'block';
+            document.getElementById('userName').textContent = user.username;
+
+            // Yalnızca Yönetici için kırmızı "HESAP İŞLEM" butonunu göster
+            if (user.isAdmin) {
+                document.getElementById('accountActionButton').style.display = 'block';
+            }
+        }
+
+        // "HESAP İŞLEM" Butonu ile Hesap Oluşturma
+        document.getElementById('accountActionButton').addEventListener('click', function() {
+            if (currentUser && currentUser.isAdmin) {
+                const newUsername = prompt("Yeni kullanıcı adı girin:");
+                const newPassword = prompt("Yeni şifre girin:");
+
+                if (newUsername && newPassword) {
+                    if (users.find(u => u.username === newUsername)) {
+                        alert("Bu kullanıcı adı zaten mevcut.");
+                    } else {
+                        users.push({ username: newUsername, password: newPassword, isAdmin: false });
+                        saveUsers(users);
+                        alert("Yeni hesap başarıyla oluşturuldu!");
+                    }
+                } else {
+                    alert("Kullanıcı adı ve şifre boş olamaz.");
+                }
+            } else {
+                alert("Sadece Yönetici bu butonu kullanabilir.");
+            }
         });
     </script>
 </body>
