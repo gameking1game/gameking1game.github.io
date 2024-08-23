@@ -5,17 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Giriş Sistemi</title>
     <style>
-        body { font-family: Arial, sans-serif; }
+        body { font-family: Arial, sans-serif; position: relative; min-height: 100vh; }
         .container { max-width: 400px; margin: auto; padding: 20px; border: 1px solid #ccc; border-radius: 10px; }
         label, input, button { display: block; width: 100%; margin-bottom: 10px; }
         button { padding: 10px; background-color: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; }
         button:hover { background-color: #45a049; }
-        #loginSection, #registerSection, #infoSection, #announcementSection { display: none; }
+        #loginSection, #registerSection, #infoSection { display: none; }
         #infoSection { margin-top: 20px; }
         .red-button { background-color: red; color: white; padding: 10px; border: none; border-radius: 5px; cursor: pointer; margin-top: 20px; }
         .red-button:hover { background-color: darkred; }
-        .green-button { background-color: green; color: white; padding: 10px; border: none; border-radius: 5px; cursor: pointer; margin-top: 20px; }
+        .green-button { background-color: green; color: white; padding: 10px; border: none; border-radius: 5px; cursor: pointer; margin-top: 10px; }
         .green-button:hover { background-color: darkgreen; }
+        .footer { position: absolute; bottom: 0; width: 100%; text-align: center; padding: 10px 0; background-color: #f1f1f1; }
     </style>
 </head>
 <body>
@@ -41,46 +42,50 @@
             <h2>Hoşgeldiniz, <span id="userName"></span></h2>
             <button id="logoutButton">Çıkış Yap</button>
             <button id="accountActionButton" class="red-button" style="display: none;">HESAP İŞLEM</button>
-            <button id="announcementButton" class="green-button" style="display: none;">DUYURU GÖNDER</button>
+            <button id="sendAnnouncementButton" class="green-button" style="display: none;">DUYURU GÖNDER</button>
+            <button id="viewAnnouncementsButton" class="green-button">GELEN DUYURULAR</button>
         </div>
-
-        <!-- Gelen Duyurular Bölümü -->
-        <div id="announcementSection">
-            <h3>Gelen Duyurular</h3>
-            <ul id="announcementList"></ul>
-        </div>
-        <button id="viewAnnouncementsButton" class="green-button" style="display: none;">GELEN DUYURULAR</button>
     </div>
 
+    <div class="footer">KING GAME PLAY MEDİA GROUP</div>
+
     <script>
+        // Yönetici kullanıcı adı ve şifresi
         const adminUsername = "Yönetici";
         const adminPassword = "A1";
 
-        let users = JSON.parse(localStorage.getItem('users')) || [{ username: adminUsername, password: adminPassword, isAdmin: true }];
-        let currentUser = null;
-        let announcements = JSON.parse(localStorage.getItem('announcements')) || [];
+        // Kullanıcıları saklamak için localStorage kullanımı
+        function getUsers() {
+            const users = localStorage.getItem('users');
+            return users ? JSON.parse(users) : [{ username: adminUsername, password: adminPassword, isAdmin: true }];
+        }
 
         function saveUsers(users) {
             localStorage.setItem('users', JSON.stringify(users));
         }
 
-        function saveAnnouncements(announcements) {
-            localStorage.setItem('announcements', JSON.stringify(announcements));
-        }
+        // Kullanıcı bilgileri
+        let users = getUsers();
+        let currentUser = null;
+        let announcements = [];
 
+        // Hesabın Var mı? Butonu
         document.getElementById('hasAccountButton').addEventListener('click', function() {
             document.getElementById('loginSection').style.display = 'block';
             document.getElementById('infoSection').style.display = 'none';
         });
 
+        // Hesap Oluştur Butonu
         document.getElementById('createAccountButton').addEventListener('click', function() {
-            alert('GAME KING POYRAZ DESTEK\'ten şifrenizi alın.');
+            alert('GAME KING POYRAZ DİSCORD sunucusundan şifre alın');
         });
 
+        // Giriş Yapma Formu
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const username = document.getElementById('loginUsername').value;
             const password = document.getElementById('loginPassword').value;
+
             const user = users.find(u => u.username === username && u.password === password);
 
             if (user) {
@@ -90,27 +95,28 @@
             }
         });
 
+        // Çıkış Yap Butonu
         document.getElementById('logoutButton').addEventListener('click', function() {
             currentUser = null;
             document.getElementById('infoSection').style.display = 'none';
             document.getElementById('loginSection').style.display = 'block';
-            document.getElementById('viewAnnouncementsButton').style.display = 'none';
         });
 
+        // Giriş Başarılı
         function handleLoginSuccess(user) {
             currentUser = user;
             document.getElementById('loginSection').style.display = 'none';
             document.getElementById('infoSection').style.display = 'block';
             document.getElementById('userName').textContent = user.username;
 
+            // Yalnızca Yönetici için kırmızı "HESAP İŞLEM" ve "DUYURU GÖNDER" butonlarını göster
             if (user.isAdmin) {
                 document.getElementById('accountActionButton').style.display = 'block';
-                document.getElementById('announcementButton').style.display = 'block';
-            } else {
-                document.getElementById('viewAnnouncementsButton').style.display = 'block';
+                document.getElementById('sendAnnouncementButton').style.display = 'block';
             }
         }
 
+        // "HESAP İŞLEM" Butonu ile Hesap Oluşturma
         document.getElementById('accountActionButton').addEventListener('click', function() {
             if (currentUser && currentUser.isAdmin) {
                 const newUsername = prompt("Yeni kullanıcı adı girin:");
@@ -132,24 +138,33 @@
             }
         });
 
-        document.getElementById('announcementButton').addEventListener('click', function() {
-            const message = prompt("Göndermek istediğiniz duyuruyu girin:");
-            if (message) {
-                announcements.push(message);
-                saveAnnouncements(announcements);
-                alert("Duyuru başarıyla gönderildi!");
+        // "DUYURU GÖNDER" Butonu ile Duyuru Gönderme
+        document.getElementById('sendAnnouncementButton').addEventListener('click', function() {
+            if (currentUser && currentUser.isAdmin) {
+                const announcement = prompt("Duyuru mesajını girin:");
+
+                if (announcement) {
+                    announcements.push(announcement);
+                    localStorage.setItem('announcements', JSON.stringify(announcements));
+                    alert("Duyuru gönderildi!");
+                } else {
+                    alert("Duyuru boş olamaz.");
+                }
+            } else {
+                alert("Sadece Yönetici duyuru gönderebilir.");
             }
         });
 
+        // "GELEN DUYURULAR" Butonu ile Duyuruları Görüntüleme
         document.getElementById('viewAnnouncementsButton').addEventListener('click', function() {
-            const announcementList = document.getElementById('announcementList');
-            announcementList.innerHTML = '';
-            announcements.forEach(announcement => {
-                const li = document.createElement('li');
-                li.textContent = announcement;
-                announcementList.appendChild(li);
-            });
-            document.getElementById('announcementSection').style.display = 'block';
+            const storedAnnouncements = localStorage.getItem('announcements');
+            const announcementsToShow = storedAnnouncements ? JSON.parse(storedAnnouncements) : [];
+
+            if (announcementsToShow.length > 0) {
+                alert("Gelen Duyurular:\n\n" + announcementsToShow.join('\n\n'));
+            } else {
+                alert("Henüz bir duyuru yok.");
+            }
         });
     </script>
 </body>
