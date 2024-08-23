@@ -14,6 +14,8 @@
         #infoSection { margin-top: 20px; }
         .red-button { background-color: red; color: white; padding: 10px; border: none; border-radius: 5px; cursor: pointer; margin-top: 20px; }
         .red-button:hover { background-color: darkred; }
+        .green-button { background-color: green; color: white; padding: 10px; border: none; border-radius: 5px; cursor: pointer; margin-top: 20px; }
+        .green-button:disabled { background-color: lightgreen; cursor: not-allowed; }
     </style>
 </head>
 <body>
@@ -32,8 +34,6 @@
                 <input type="password" id="loginPassword" required>
                 <button type="submit">Giriş Yap</button>
             </form>
-            <!-- Yeni Hesap Oluştur Butonu -->
-            <button id="newAccountButton" style="background-color: orange; color: white;">Hesap Oluştur</button>
         </div>
 
         <!-- Bilgi Bölümü -->
@@ -41,6 +41,7 @@
             <h2>Hoşgeldiniz, <span id="userName"></span></h2>
             <button id="logoutButton">Çıkış Yap</button>
             <button id="accountActionButton" class="red-button" style="display: none;">HESAP İŞLEM</button>
+            <button id="announcementButton" class="green-button" style="display: none;">DUYURU</button>
         </div>
     </div>
 
@@ -71,7 +72,7 @@
 
         // Hesap Oluştur Butonu
         document.getElementById('createAccountButton').addEventListener('click', function() {
-            alert('GAME KİNG POYRAZ DESTEK\'TEN ŞİFRENİZİ ALIN');
+            alert('GAME KING POYRAZ DİSCORD sunucusundan şifre alın');
         });
 
         // Giriş Yapma Formu
@@ -103,9 +104,10 @@
             document.getElementById('infoSection').style.display = 'block';
             document.getElementById('userName').textContent = user.username;
 
-            // Yalnızca Yönetici için kırmızı "HESAP İŞLEM" butonunu göster
+            // Yalnızca Yönetici için kırmızı "HESAP İŞLEM" ve yeşil "DUYURU" butonlarını göster
             if (user.isAdmin) {
                 document.getElementById('accountActionButton').style.display = 'block';
+                document.getElementById('announcementButton').style.display = 'block';
             }
         }
 
@@ -131,9 +133,26 @@
             }
         });
 
-        // Yeni Hesap Oluştur Butonu
-        document.getElementById('newAccountButton').addEventListener('click', function() {
-            alert('GAME KİNG POYRAZ DESTEK\'TEN ŞİFRENİZİ ALIN');
+        // "DUYURU" Butonu ile Kullanıcılara Mesaj Gönderme
+        document.getElementById('announcementButton').addEventListener('click', function() {
+            if (currentUser && currentUser.isAdmin) {
+                const message = prompt("Göndermek istediğiniz duyuruyu yazın:");
+
+                if (message) {
+                    users.forEach(user => {
+                        if (!user.isAdmin) {
+                            user.messages = user.messages || [];
+                            user.messages.push({ from: currentUser.username, content: message });
+                        }
+                    });
+                    saveUsers(users);
+                    alert("Duyuru başarıyla gönderildi!");
+                } else {
+                    alert("Mesaj boş olamaz.");
+                }
+            } else {
+                alert("Sadece Yönetici bu butonu kullanabilir.");
+            }
         });
     </script>
 </body>
