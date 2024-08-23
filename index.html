@@ -10,9 +10,9 @@
         label, input, button { display: block; width: 100%; margin-bottom: 10px; }
         button { padding: 10px; background-color: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; }
         button:hover { background-color: #45a049; }
-        #loginSection, #registerSection, #infoSection, #messageSection { display: none; }
-        #infoSection, #messageSection { margin-top: 20px; }
-        .red-button { background-color: red; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; }
+        #loginSection, #registerSection, #infoSection { display: none; }
+        #infoSection { margin-top: 20px; }
+        .red-button { background-color: red; color: white; padding: 10px; border: none; border-radius: 5px; cursor: pointer; margin-top: 20px; }
         .red-button:hover { background-color: darkred; }
     </style>
 </head>
@@ -34,49 +34,23 @@
             </form>
         </div>
 
-        <!-- Kayıt Olma Bölümü -->
-        <div id="registerSection">
-            <h2>Hesap Oluştur</h2>
-            <form id="registerForm">
-                <label for="registerUsername">Kullanıcı Adı:</label>
-                <input type="text" id="registerUsername" required>
-                <label for="registerPassword">Şifre:</label>
-                <input type="password" id="registerPassword" required>
-                <button type="submit">Kayıt Ol</button>
-            </form>
-        </div>
-
-        <!-- Bilgi ve Mesaj Bölümleri -->
+        <!-- Bilgi Bölümü -->
         <div id="infoSection">
             <h2>Hoşgeldiniz, <span id="userName"></span></h2>
             <button id="logoutButton">Çıkış Yap</button>
-            <div id="notificationSection" style="display: none;">
-                <h3>Yönetici Duyuruları:</h3>
-                <ul id="notificationsList"></ul>
-            </div>
-            <div id="messageSection" style="display: none;">
-                <h3>Mesaj Gönder</h3>
-                <label for="recipientUsername">Kime:</label>
-                <input type="text" id="recipientUsername" placeholder="Kullanıcı adı">
-                <label for="messageContent">Mesaj:</label>
-                <textarea id="messageContent" rows="4" placeholder="Mesajınızı yazın"></textarea>
-                <button id="sendMessageButton">Mesaj Gönder</button>
-            </div>
-
-            <!-- KIRMIZI HESAP İŞLEM Butonu (Yönetici için) -->
             <button id="accountActionButton" class="red-button" style="display: none;">HESAP İŞLEM</button>
         </div>
     </div>
 
     <script>
         // Yönetici kullanıcı adı ve şifresi
-        const admin1 = { username: "Yönetici", password: "A1", isAdmin: true };
-        const admin2 = { username: "Yönetici2", password: "A1", isAdmin: false, isAdmin2: true };
+        const adminUsername = "Yönetici";
+        const adminPassword = "A1";
 
         // Kullanıcıları saklamak için localStorage kullanımı
         function getUsers() {
             const users = localStorage.getItem('users');
-            return users ? JSON.parse(users) : [admin1, admin2];
+            return users ? JSON.parse(users) : [{ username: adminUsername, password: adminPassword, isAdmin: true }];
         }
 
         function saveUsers(users) {
@@ -90,36 +64,12 @@
         // Hesabın Var mı? Butonu
         document.getElementById('hasAccountButton').addEventListener('click', function() {
             document.getElementById('loginSection').style.display = 'block';
-            document.getElementById('registerSection').style.display = 'none';
+            document.getElementById('infoSection').style.display = 'none';
         });
 
         // Hesap Oluştur Butonu
         document.getElementById('createAccountButton').addEventListener('click', function() {
             alert('GAME KING POYRAZ DİSCORD sunucusundan şifre alın');
-        });
-
-        // Kayıt Olma Formu (Sadece Yönetici Kullanıcı İçin)
-        document.getElementById('registerForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-
-            if (!currentUser || !currentUser.isAdmin) {
-                alert("Sadece yönetici hesap oluşturabilir.");
-                return;
-            }
-
-            const username = document.getElementById('registerUsername').value;
-            const password = document.getElementById('registerPassword').value;
-
-            if (users.find(u => u.username === username)) {
-                alert('Bu kullanıcı adı zaten mevcut.');
-            } else {
-                users.push({ username, password, isAdmin: false, messages: [] });
-                saveUsers(users);
-                alert('Hesap başarıyla oluşturuldu!');
-                document.getElementById('registerForm').reset();
-                document.getElementById('registerSection').style.display = 'none';
-                document.getElementById('loginSection').style.display = 'block';
-            }
         });
 
         // Giriş Yapma Formu
@@ -142,34 +92,22 @@
             currentUser = null;
             document.getElementById('infoSection').style.display = 'none';
             document.getElementById('loginSection').style.display = 'block';
-            document.getElementById('registerSection').style.display = 'none';
-            document.getElementById('messageSection').style.display = 'none';
-            document.getElementById('notificationSection').style.display = 'none';
-            document.getElementById('accountActionButton').style.display = 'none';
         });
 
         // Giriş Başarılı
         function handleLoginSuccess(user) {
             currentUser = user;
             document.getElementById('loginSection').style.display = 'none';
-            document.getElementById('registerSection').style.display = 'none';
             document.getElementById('infoSection').style.display = 'block';
-
-            // Kullanıcı bilgilerini göster
             document.getElementById('userName').textContent = user.username;
 
+            // Yalnızca Yönetici için kırmızı "HESAP İŞLEM" butonunu göster
             if (user.isAdmin) {
-                document.getElementById('messageSection').style.display = 'block';
                 document.getElementById('accountActionButton').style.display = 'block';
-            }
-
-            // "HESAP KAYIT2" butonunu yalnızca Yönetici2 için göster
-            if (user.isAdmin2) {
-                document.getElementById('createAccountButton2').style.display = 'block';
             }
         }
 
-        // KIRMIZI "HESAP İŞLEM" butonuna basılınca yeni hesap oluştur
+        // "HESAP İŞLEM" Butonu ile Hesap Oluşturma
         document.getElementById('accountActionButton').addEventListener('click', function() {
             if (currentUser && currentUser.isAdmin) {
                 const newUsername = prompt("Yeni kullanıcı adı girin:");
@@ -179,10 +117,12 @@
                     if (users.find(u => u.username === newUsername)) {
                         alert("Bu kullanıcı adı zaten mevcut.");
                     } else {
-                        users.push({ username: newUsername, password: newPassword, isAdmin: false, messages: [] });
+                        users.push({ username: newUsername, password: newPassword, isAdmin: false });
                         saveUsers(users);
-                        alert('Yeni hesap başarıyla oluşturuldu!');
+                        alert("Yeni hesap başarıyla oluşturuldu!");
                     }
+                } else {
+                    alert("Kullanıcı adı ve şifre boş olamaz.");
                 }
             } else {
                 alert("Sadece Yönetici bu butonu kullanabilir.");
