@@ -186,4 +186,7 @@
         document.getElementById('sendMessageButton').addEventListener('click', function() {
             if (currentUser && currentUser.isAdmin) {
                 const recipient = prompt("Kullanıcı adı girin:");
-                const message = prompt("Mesaj
+                const message = prompt("Mesajınızı girin:");
+
+                if (recipient && message) {
+                    const recipient
