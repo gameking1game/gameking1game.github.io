@@ -10,12 +10,12 @@
         label, input, button { display: block; width: 100%; margin-bottom: 10px; }
         button { padding: 10px; background-color: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; }
         button:hover { background-color: #45a049; }
-        #loginSection, #registerSection, #infoSection { display: none; }
+        #loginSection, #registerSection, #infoSection, #announcementSection { display: none; }
         #infoSection { margin-top: 20px; }
         .red-button { background-color: red; color: white; padding: 10px; border: none; border-radius: 5px; cursor: pointer; margin-top: 20px; }
         .red-button:hover { background-color: darkred; }
         .green-button { background-color: green; color: white; padding: 10px; border: none; border-radius: 5px; cursor: pointer; margin-top: 20px; }
-        .green-button:disabled { background-color: lightgreen; cursor: not-allowed; }
+        .green-button:hover { background-color: darkgreen; }
     </style>
 </head>
 <body>
@@ -41,46 +41,46 @@
             <h2>Hoşgeldiniz, <span id="userName"></span></h2>
             <button id="logoutButton">Çıkış Yap</button>
             <button id="accountActionButton" class="red-button" style="display: none;">HESAP İŞLEM</button>
-            <button id="announcementButton" class="green-button" style="display: none;">DUYURU</button>
+            <button id="announcementButton" class="green-button" style="display: none;">DUYURU GÖNDER</button>
         </div>
+
+        <!-- Gelen Duyurular Bölümü -->
+        <div id="announcementSection">
+            <h3>Gelen Duyurular</h3>
+            <ul id="announcementList"></ul>
+        </div>
+        <button id="viewAnnouncementsButton" class="green-button" style="display: none;">GELEN DUYURULAR</button>
     </div>
 
     <script>
-        // Yönetici kullanıcı adı ve şifresi
         const adminUsername = "Yönetici";
         const adminPassword = "A1";
 
-        // Kullanıcıları saklamak için localStorage kullanımı
-        function getUsers() {
-            const users = localStorage.getItem('users');
-            return users ? JSON.parse(users) : [{ username: adminUsername, password: adminPassword, isAdmin: true }];
-        }
+        let users = JSON.parse(localStorage.getItem('users')) || [{ username: adminUsername, password: adminPassword, isAdmin: true }];
+        let currentUser = null;
+        let announcements = JSON.parse(localStorage.getItem('announcements')) || [];
 
         function saveUsers(users) {
             localStorage.setItem('users', JSON.stringify(users));
         }
 
-        // Kullanıcı bilgileri
-        let users = getUsers();
-        let currentUser = null;
+        function saveAnnouncements(announcements) {
+            localStorage.setItem('announcements', JSON.stringify(announcements));
+        }
 
-        // Hesabın Var mı? Butonu
         document.getElementById('hasAccountButton').addEventListener('click', function() {
             document.getElementById('loginSection').style.display = 'block';
             document.getElementById('infoSection').style.display = 'none';
         });
 
-        // Hesap Oluştur Butonu
         document.getElementById('createAccountButton').addEventListener('click', function() {
-            alert('GAME KING POYRAZ DİSCORD sunucusundan şifre alın');
+            alert('GAME KING POYRAZ DESTEK\'ten şifrenizi alın.');
         });
 
-        // Giriş Yapma Formu
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const username = document.getElementById('loginUsername').value;
             const password = document.getElementById('loginPassword').value;
-
             const user = users.find(u => u.username === username && u.password === password);
 
             if (user) {
@@ -90,28 +90,27 @@
             }
         });
 
-        // Çıkış Yap Butonu
         document.getElementById('logoutButton').addEventListener('click', function() {
             currentUser = null;
             document.getElementById('infoSection').style.display = 'none';
             document.getElementById('loginSection').style.display = 'block';
+            document.getElementById('viewAnnouncementsButton').style.display = 'none';
         });
 
-        // Giriş Başarılı
         function handleLoginSuccess(user) {
             currentUser = user;
             document.getElementById('loginSection').style.display = 'none';
             document.getElementById('infoSection').style.display = 'block';
             document.getElementById('userName').textContent = user.username;
 
-            // Yalnızca Yönetici için kırmızı "HESAP İŞLEM" ve yeşil "DUYURU" butonlarını göster
             if (user.isAdmin) {
                 document.getElementById('accountActionButton').style.display = 'block';
                 document.getElementById('announcementButton').style.display = 'block';
+            } else {
+                document.getElementById('viewAnnouncementsButton').style.display = 'block';
             }
         }
 
-        // "HESAP İŞLEM" Butonu ile Hesap Oluşturma
         document.getElementById('accountActionButton').addEventListener('click', function() {
             if (currentUser && currentUser.isAdmin) {
                 const newUsername = prompt("Yeni kullanıcı adı girin:");
@@ -133,26 +132,24 @@
             }
         });
 
-        // "DUYURU" Butonu ile Kullanıcılara Mesaj Gönderme
         document.getElementById('announcementButton').addEventListener('click', function() {
-            if (currentUser && currentUser.isAdmin) {
-                const message = prompt("Göndermek istediğiniz duyuruyu yazın:");
-
-                if (message) {
-                    users.forEach(user => {
-                        if (!user.isAdmin) {
-                            user.messages = user.messages || [];
-                            user.messages.push({ from: currentUser.username, content: message });
-                        }
-                    });
-                    saveUsers(users);
-                    alert("Duyuru başarıyla gönderildi!");
-                } else {
-                    alert("Mesaj boş olamaz.");
-                }
-            } else {
-                alert("Sadece Yönetici bu butonu kullanabilir.");
+            const message = prompt("Göndermek istediğiniz duyuruyu girin:");
+            if (message) {
+                announcements.push(message);
+                saveAnnouncements(announcements);
+                alert("Duyuru başarıyla gönderildi!");
             }
+        });
+
+        document.getElementById('viewAnnouncementsButton').addEventListener('click', function() {
+            const announcementList = document.getElementById('announcementList');
+            announcementList.innerHTML = '';
+            announcements.forEach(announcement => {
+                const li = document.createElement('li');
+                li.textContent = announcement;
+                announcementList.appendChild(li);
+            });
+            document.getElementById('announcementSection').style.display = 'block';
         });
     </script>
 </body>
