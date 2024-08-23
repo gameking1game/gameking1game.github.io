@@ -16,7 +16,6 @@
         .red-button:hover { background-color: darkred; }
         .green-button { background-color: green; color: white; padding: 10px; border: none; border-radius: 5px; cursor: pointer; margin-top: 20px; }
         .green-button:hover { background-color: darkgreen; }
-        footer { text-align: center; margin-top: 20px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -42,12 +41,13 @@
             <h2>Hoşgeldiniz, <span id="userName"></span></h2>
             <button id="logoutButton">Çıkış Yap</button>
             <button id="accountActionButton" class="red-button" style="display: none;">HESAP İŞLEM</button>
+            <button id="sendAnnouncementButton" class="green-button" style="display: none;">DUYURU GÖNDER</button>
             <button id="sendMessageButton" class="green-button" style="display: none;">MESAJ GÖNDER</button>
+            <button id="inboxButton" class="green-button" style="display: none;">GELEN KUTUSU</button>
         </div>
     </div>
 
-    <!-- Footer -->
-    <footer>
+    <footer style="text-align:center; margin-top: 20px;">
         KING GAME PLAY MEDİA GROUP
     </footer>
 
@@ -55,11 +55,16 @@
         // Yönetici kullanıcı adı ve şifresi
         const adminUsername = "Yönetici";
         const adminPassword = "A1";
+        const admin2Username = "Yönetici2";
+        const admin2Password = "Yönetici2Password";
 
         // Kullanıcıları saklamak için localStorage kullanımı
         function getUsers() {
             const users = localStorage.getItem('users');
-            return users ? JSON.parse(users) : [{ username: adminUsername, password: adminPassword, isAdmin: true }];
+            return users ? JSON.parse(users) : [
+                { username: adminUsername, password: adminPassword, isAdmin: true },
+                { username: admin2Username, password: admin2Password, isAdmin: true }
+            ];
         }
 
         function saveUsers(users) {
@@ -69,6 +74,7 @@
         // Kullanıcı bilgileri
         let users = getUsers();
         let currentUser = null;
+        let messages = [];
 
         // Hesabın Var mı? Butonu
         document.getElementById('hasAccountButton').addEventListener('click', function() {
@@ -78,7 +84,7 @@
 
         // Hesap Oluştur Butonu
         document.getElementById('createAccountButton').addEventListener('click', function() {
-            alert('GAME KING POYRAZ DİSCORD sunucusundan şifre alın');
+            alert('GAME KİNG POYRAZ DESTEK\'ten şifrenizi alın');
         });
 
         // Giriş Yapma Formu
@@ -110,10 +116,13 @@
             document.getElementById('infoSection').style.display = 'block';
             document.getElementById('userName').textContent = user.username;
 
-            // Yalnızca Yönetici için kırmızı "HESAP İŞLEM" ve yeşil "MESAJ GÖNDER" butonlarını göster
+            // Yalnızca Yönetici için kırmızı "HESAP İŞLEM" butonunu göster
             if (user.isAdmin) {
                 document.getElementById('accountActionButton').style.display = 'block';
+                document.getElementById('sendAnnouncementButton').style.display = 'block';
                 document.getElementById('sendMessageButton').style.display = 'block';
+            } else {
+                document.getElementById('inboxButton').style.display = 'block';
             }
         }
 
@@ -139,22 +148,49 @@
             }
         });
 
-        // "MESAJ GÖNDER" Butonu ile Mesaj Gönderme
-        document.getElementById('sendMessageButton').addEventListener('click', function() {
+        // "DUYURU GÖNDER" Butonu ile Duyuru Gönderme
+        document.getElementById('sendAnnouncementButton').addEventListener('click', function() {
             if (currentUser && currentUser.isAdmin) {
-                const recipient = prompt("Mesaj göndermek istediğiniz kullanıcı adını girin:");
-                const message = prompt("Göndermek istediğiniz mesajı yazın:");
-
-                const recipientUser = users.find(u => u.username === recipient);
-
-                if (recipientUser) {
-                    // Mesajı kaydet veya işlem yap
-                    alert(`Mesajınız "${recipientUser.username}" adlı kullanıcıya gönderildi.`);
-                } else {
-                    alert("Kullanıcı bulunamadı.");
+                const announcement = prompt("Duyuruyu girin:");
+                if (announcement) {
+                    messages.push({ from: currentUser.username, message: announcement, isAnnouncement: true });
+                    alert("Duyuru gönderildi!");
                 }
             } else {
                 alert("Sadece Yönetici bu butonu kullanabilir.");
+            }
+        });
+
+        // "MESAJ GÖNDER" Butonu ile Özel Mesaj Gönderme
+        document.getElementById('sendMessageButton').addEventListener('click', function() {
+            if (currentUser && currentUser.isAdmin) {
+                const recipient = prompt("Kullanıcı adı girin:");
+                const message = prompt("Mesajınızı girin:");
+
+                if (recipient && message) {
+                    if (users.find(u => u.username === recipient)) {
+                        messages.push({ from: currentUser.username, to: recipient, message: message, isAnnouncement: false });
+                        alert("Mesaj gönderildi!");
+                    } else {
+                        alert("Bu kullanıcı bulunamadı.");
+                    }
+                } else {
+                    alert("Kullanıcı adı ve mesaj boş olamaz.");
+                }
+            } else {
+                alert("Sadece Yönetici bu butonu kullanabilir.");
+            }
+        });
+
+        // "GELEN KUTUSU" Butonu ile Mesajları Görüntüleme
+        document.getElementById('inboxButton').addEventListener('click', function() {
+            if (currentUser) {
+                const userMessages = messages.filter(m => m.to === currentUser.username && !m.isAnnouncement);
+                if (userMessages.length > 0) {
+                    alert("Gelen Mesajlar:\n" + userMessages.map(m => `${m.from}: ${m.message}`).join("\n"));
+                } else {
+                    alert("Gelen mesaj bulunmamaktadır.");
+                }
             }
         });
     </script>
