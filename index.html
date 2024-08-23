@@ -13,6 +13,9 @@
         button:hover { background-color: #45a049; }
         .green-button { background-color: green; }
         .green-button:hover { background-color: darkgreen; }
+        .red-button { background-color: red; color: white; border-radius: 5px; }
+        .red-button:hover { background-color: darkred; }
+        footer { text-align: center; margin-top: 20px; }
     </style>
 </head>
 <body>
@@ -23,13 +26,21 @@
             <input type="password" id="loginPassword" placeholder="Şifre" required>
             <button onclick="login()">Giriş Yap</button>
             <button id="forgotPasswordButton">Şifremi Unuttum</button>
+            <button onclick="showRegisterAlert()">Hesap Oluştur</button>
         </div>
         <div id="infoSection" style="display:none;">
             <h3>Hoşgeldiniz, <span id="userName"></span></h3>
             <button id="logoutButton" onclick="logout()">Çıkış Yap</button>
             <button id="changePasswordButton" class="green-button" onclick="changePassword()">Şifremi Değiştir</button>
+            <button id="accountActionButton" class="red-button" style="display: none;" onclick="createAccount()">HESAP İŞLEM</button>
+            <button id="announcementButton" class="green-button" style="display: none;" onclick="sendAnnouncement()">DUYURU GÖNDER</button>
+            <button id="inboxButton" class="green-button" onclick="viewInbox()">GELEN KUTUSU</button>
         </div>
     </div>
+
+    <footer>
+        <p>KING GAME PLAY MEDİA GROUP</p>
+    </footer>
 
     <script>
         const users = [
@@ -39,6 +50,8 @@
         ];
 
         let currentUser = null;
+        let announcements = [];
+        let inbox = [];
 
         function login() {
             const username = document.getElementById('loginUsername').value;
@@ -50,6 +63,11 @@
                 document.getElementById('loginSection').style.display = 'none';
                 document.getElementById('infoSection').style.display = 'block';
                 document.getElementById('userName').innerText = currentUser.username;
+                
+                if (currentUser.isAdmin) {
+                    document.getElementById('accountActionButton').style.display = 'block';
+                    document.getElementById('announcementButton').style.display = 'block';
+                }
             } else {
                 alert("Geçersiz kullanıcı adı veya şifre.");
             }
@@ -59,6 +77,10 @@
             currentUser = null;
             document.getElementById('loginSection').style.display = 'block';
             document.getElementById('infoSection').style.display = 'none';
+        }
+
+        function showRegisterAlert() {
+            alert('GAME KİNG POYRAZ DESTEK\'ten şifrenizi alın');
         }
 
         function changePassword() {
@@ -74,6 +96,42 @@
                 alert("Şifreniz başarıyla değiştirildi.");
             } else {
                 alert("Şifre değiştirilemedi.");
+            }
+        }
+
+        function createAccount() {
+            if (currentUser.isAdmin) {
+                const newUsername = prompt("Yeni kullanıcı adı girin:");
+                const newPassword = prompt("Yeni şifre girin:");
+
+                if (newUsername && newPassword) {
+                    if (users.find(u => u.username === newUsername)) {
+                        alert("Bu kullanıcı adı zaten mevcut.");
+                    } else {
+                        users.push({ username: newUsername, password: newPassword, passwordChanges: 0, isAdmin: false });
+                        alert("Yeni hesap başarıyla oluşturuldu!");
+                    }
+                } else {
+                    alert("Kullanıcı adı ve şifre boş olamaz.");
+                }
+            } else {
+                alert("Sadece Yönetici bu butonu kullanabilir.");
+            }
+        }
+
+        function sendAnnouncement() {
+            const message = prompt("Göndermek istediğiniz duyuruyu yazın:");
+            if (message) {
+                announcements.push(message);
+                alert("Duyuru başarıyla gönderildi!");
+            }
+        }
+
+        function viewInbox() {
+            if (inbox.length === 0) {
+                alert("Henüz gelen mesajınız yok.");
+            } else {
+                alert("Gelen Mesajlar:\n" + inbox.join("\n"));
             }
         }
 
