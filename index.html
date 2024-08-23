@@ -52,29 +52,29 @@
                 <h3>Yönetici Duyuruları:</h3>
                 <ul id="notificationsList"></ul>
             </div>
-        </div>
+            <div id="messageSection" style="display: none;">
+                <h3>Mesaj Gönder</h3>
+                <label for="recipientUsername">Kime:</label>
+                <input type="text" id="recipientUsername" placeholder="Kullanıcı adı">
+                <label for="messageContent">Mesaj:</label>
+                <textarea id="messageContent" rows="4" placeholder="Mesajınızı yazın"></textarea>
+                <button id="sendMessageButton">Mesaj Gönder</button>
+            </div>
 
-        <div id="messageSection" style="display: none;">
-            <h3>Mesaj Gönder</h3>
-            <label for="recipientUsername">Kime:</label>
-            <input type="text" id="recipientUsername" placeholder="Kullanıcı adı">
-            <label for="messageContent">Mesaj:</label>
-            <textarea id="messageContent" rows="4" placeholder="Mesajınızı yazın"></textarea>
-            <button id="sendMessageButton">Mesaj Gönder</button>
+            <!-- HESAP KAYIT2 Butonu (Yönetici2 için) -->
+            <button id="createAccountButton2" style="display: none;">HESAP KAYIT2</button>
         </div>
     </div>
 
     <script>
         // Yönetici kullanıcı adı ve şifresi
-        const adminUsername = "Yönetici";
-        const adminPassword = "A1";
+        const admin1 = { username: "Yönetici", password: "A1", isAdmin: true };
+        const admin2 = { username: "Yönetici2", password: "A1", isAdmin: false, isAdmin2: true };
 
         // Kullanıcıları saklamak için localStorage kullanımı
         function getUsers() {
             const users = localStorage.getItem('users');
-            return users ? JSON.parse(users) : [
-                { username: adminUsername, password: adminPassword, isAdmin: true, messages: [] }
-            ];
+            return users ? JSON.parse(users) : [admin1, admin2];
         }
 
         function saveUsers(users) {
@@ -126,15 +126,12 @@
             const username = document.getElementById('loginUsername').value;
             const password = document.getElementById('loginPassword').value;
 
-            if (username === adminUsername && password === adminPassword) {
-                handleLoginSuccess({ username: adminUsername, isAdmin: true });
+            const user = users.find(u => u.username === username && u.password === password);
+
+            if (user) {
+                handleLoginSuccess(user);
             } else {
-                const user = users.find(u => u.username === username && u.password === password);
-                if (user) {
-                    handleLoginSuccess(user);
-                } else {
-                    alert("Geçersiz kullanıcı adı veya şifre.");
-                }
+                alert("Geçersiz kullanıcı adı veya şifre.");
             }
         });
 
@@ -146,6 +143,7 @@
             document.getElementById('registerSection').style.display = 'none';
             document.getElementById('messageSection').style.display = 'none';
             document.getElementById('notificationSection').style.display = 'none';
+            document.getElementById('createAccountButton2').style.display = 'none';
         });
 
         // Giriş Başarılı
@@ -160,49 +158,33 @@
 
             if (user.isAdmin) {
                 document.getElementById('messageSection').style.display = 'block';
+            }
 
-                // Yönetici mesaj gönderme
-                document.getElementById('sendMessageButton').addEventListener('click', function() {
-                    const recipient = document.getElementById('recipientUsername').value;
-                    const message = document.getElementById('messageContent').value;
-
-                    const recipientUser = users.find(u => u.username === recipient);
-
-                    if (recipientUser) {
-                        recipientUser.messages.push({ from: user.username, content: message });
-                        saveUsers(users);
-                        alert('Mesaj gönderildi!');
-                        document.getElementById('recipientUsername').value = '';
-                        document.getElementById('messageContent').value = '';
-                    } else {
-                        alert('Kullanıcı bulunamadı.');
-                    }
-                });
-
-                // Yönetici duyuruları
-                const notificationsList = document.getElementById('notificationsList');
-                users.forEach(u => {
-                    if (!u.isAdmin && u.messages.length > 0) {
-                        u.messages.forEach(msg => {
-                            const listItem = document.createElement('li');
-                            listItem.textContent = `${msg.from}: ${msg.content}`;
-                            notificationsList.appendChild(listItem);
-                        });
-                    }
-                });
-                if (notificationsList.children.length > 0) {
-                    document.getElementById('notificationSection').style.display = 'block';
-                }
-            } else {
-                // Kullanıcı için gelen mesajları göster
-                const userMessages = user.messages;
-                if (userMessages.length > 0) {
-                    const messagesList = document.getElementById('notificationsList');
-                    messagesList.innerHTML = userMessages.map(msg => `<li><strong>${msg.from}:</strong> ${msg.content}</li>`).join('');
-                    document.getElementById('notificationSection').style.display = 'block';
-                }
+            // "HESAP KAYIT2" butonunu yalnızca Yönetici2 için göster
+            if (user.isAdmin2) {
+                document.getElementById('createAccountButton2').style.display = 'block';
             }
         }
+
+        // "HESAP KAYIT2" butonuna basılınca yeni hesap oluştur
+        document.getElementById('createAccountButton2').addEventListener('click', function() {
+            if (currentUser && currentUser.isAdmin2) {
+                const newUsername = prompt("Yeni kullanıcı adı girin:");
+                const newPassword = prompt("Yeni şifre girin:");
+
+                if (newUsername && newPassword) {
+                    if (users.find(u => u.username === newUsername)) {
+                        alert("Bu kullanıcı adı zaten mevcut.");
+                    } else {
+                        users.push({ username: newUsername, password: newPassword, isAdmin: false, messages: [] });
+                        saveUsers(users);
+                        alert('Yeni hesap başarıyla oluşturuldu!');
+                    }
+                }
+            } else {
+                alert("Sadece Yönetici2 bu butonu kullanabilir.");
+            }
+        });
     </script>
 </body>
 </html>
