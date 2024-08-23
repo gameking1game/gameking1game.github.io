@@ -34,7 +34,6 @@
                 <input type="password" id="loginPassword" required>
                 <button type="submit">Giriş Yap</button>
             </form>
-            <button id="forgotPasswordButton">Şifremi Unuttum</button>
         </div>
 
         <!-- Bilgi Bölümü -->
@@ -185,4 +184,15 @@
 
         // "GELEN KUTUSU" Butonu ile Mesajları Görüntüleme
         document.getElementById('inboxButton').addEventListener('click', function() {
-            if
+            if (currentUser) {
+                const userMessages = messages.filter(m => m.to === currentUser.username && !m.isAnnouncement);
+                if (userMessages.length > 0) {
+                    alert("Gelen Mesajlar:\n" + userMessages.map(m => `${m.from}: ${m.message}`).join("\n"));
+                } else {
+                    alert("Gelen mesaj bulunmamaktadır.");
+                }
+            }
+        });
+    </script>
+</body>
+</html>
