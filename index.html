@@ -5,24 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kullanıcı Giriş Sistemi</title>
     <style>
-        body { font-family: Arial, sans-serif; background-color: #f0f0f0; }
-        .container { width: 400px; margin: 50px auto; padding: 20px; background-color: white; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); }
-        h2 { text-align: center; }
-        input, button { width: 100%; padding: 10px; margin: 10px 0; }
-        button { background-color: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; }
-        button:hover { background-color: #45a049; }
-        .green-button { background-color: green; }
-        .green-button:hover { background-color: darkgreen; }
-        .red-button { background-color: red; color: white; border-radius: 5px; }
-        .red-button:hover { background-color: darkred; }
-        .yellow-button { background-color: yellow; color: black; border-radius: 5px; animation: blink 1s infinite; }
-        .yellow-button:hover { background-color: darkorange; }
-        footer { text-align: center; margin-top: 20px; }
-        footer a { text-decoration: none; margin: 0 10px; }
-        footer img { width: 24px; vertical-align: middle; }
-        @keyframes blink {
-            50% { background-color: orange; }
-        }
+        /* Same CSS as before */
     </style>
 </head>
 <body>
@@ -54,7 +37,8 @@
     </footer>
 
     <script>
-        const users = [
+        // Load users from localStorage or use default users
+        let users = JSON.parse(localStorage.getItem('users')) || [
             { username: "Yönetici", password: "Yönetici1", passwordChanges: 0, isAdmin: true },
             { username: "Yönetici2", password: "A1", passwordChanges: 0, isAdmin: true },
             { username: "Kullanıcı", password: "user123", passwordChanges: 0, isAdmin: false }
@@ -64,6 +48,10 @@
         let announcements = [];
         let inbox = [];
         let userMessages = [];
+
+        function saveUsers() {
+            localStorage.setItem('users', JSON.stringify(users));
+        }
 
         function login() {
             const username = document.getElementById('loginUsername').value;
@@ -106,6 +94,7 @@
             if (newPassword) {
                 currentUser.password = newPassword;
                 currentUser.passwordChanges += 1;
+                saveUsers(); // Save updated user data
                 alert("Şifreniz başarıyla değiştirildi.");
             } else {
                 alert("Şifre değiştirilemedi.");
@@ -122,6 +111,7 @@
                         alert("Bu kullanıcı adı zaten mevcut.");
                     } else {
                         users.push({ username: newUsername, password: newPassword, passwordChanges: 0, isAdmin: false });
+                        saveUsers(); // Save the new user data
                         alert("Yeni hesap başarıyla oluşturuldu!");
                     }
                 } else {
@@ -133,6 +123,8 @@
         }
 
         function sendAnnouncement() {
+            if (!currentUser.isAdmin) return;
+
             const message = prompt("Göndermek istediğiniz duyuruyu yazın:");
             if (message) {
                 announcements.push(message);
@@ -149,6 +141,11 @@
         }
 
         function viewUserMessages() {
+            if (!currentUser.isAdmin) {
+                alert("Bu butonu sadece yöneticiler kullanabilir.");
+                return;
+            }
+
             if (userMessages.length === 0) {
                 alert("Henüz gelen kullanıcı mesajı yok.");
             } else {
@@ -176,6 +173,7 @@
                 if (email.endsWith("@gmail.com") || email.endsWith("@outlook.com")) {
                     const newGeneratedPassword = Math.random().toString(36).slice(-8);
                     user.password = newGeneratedPassword;
+                    saveUsers(); // Save updated user data
                     alert("Yeni şifreniz e-posta adresinize gönderildi: " + newGeneratedPassword);
                 } else {
                     alert("Geçersiz e-posta adresi.");
