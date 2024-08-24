@@ -16,6 +16,7 @@
         .red-button { background-color: red; color: white; border-radius: 5px; }
         .red-button:hover { background-color: darkred; }
         footer { text-align: center; margin-top: 20px; }
+        .footer-links img { width: 30px; margin: 0 10px; vertical-align: middle; }
     </style>
 </head>
 <body>
@@ -41,10 +42,18 @@
 
     <footer>
         <p>KING GAME PLAY MEDİA GROUP</p>
+        <div class="footer-links">
+            <a href="https://discord.com/invite/XZBUFenvCX" target="_blank">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/4/4f/Twitter-logo.svg" alt="Discord">
+            </a>
+            <a href="https://www.instagram.com/gamekingpoyraz/" target="_blank">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" alt="Instagram">
+            </a>
+        </div>
     </footer>
 
     <script>
-        const users = [
+        let users = JSON.parse(localStorage.getItem('users')) || [
             { username: "Yönetici", password: "Yönetici1", passwordChanges: 0, isAdmin: true },
             { username: "Yönetici2", password: "A1", passwordChanges: 0, isAdmin: true },
             { username: "Kullanıcı", password: "user123", passwordChanges: 0, isAdmin: false }
@@ -53,6 +62,10 @@
         let currentUser = null;
         let announcements = [];
         let inbox = [];
+
+        function saveUsers() {
+            localStorage.setItem('users', JSON.stringify(users));
+        }
 
         function login() {
             const username = document.getElementById('loginUsername').value;
@@ -95,6 +108,7 @@
             if (newPassword) {
                 currentUser.password = newPassword;
                 currentUser.passwordChanges += 1;
+                saveUsers();
                 alert("Şifreniz başarıyla değiştirildi.");
             } else {
                 alert("Şifre değiştirilemedi.");
@@ -111,6 +125,7 @@
                         alert("Bu kullanıcı adı zaten mevcut.");
                     } else {
                         users.push({ username: newUsername, password: newPassword, passwordChanges: 0, isAdmin: false });
+                        saveUsers();
                         alert("Yeni hesap başarıyla oluşturuldu!");
                     }
                 } else {
@@ -139,22 +154,20 @@
 
         function sendPrivateMessage() {
             if (currentUser.isAdmin) {
-                const recipientUsername = prompt("Mesaj göndermek istediğiniz kullanıcı adını girin:");
-                const recipient = users.find(user => user.username === recipientUsername && !user.isAdmin);
+                const recipient = prompt("Mesaj göndermek istediğiniz kullanıcı adını girin:");
+                const user = users.find(u => u.username === recipient);
 
-                if (recipient) {
-                    const message = prompt("Göndermek istediğiniz mesajı yazın:");
+                if (user) {
+                    const message = prompt("Mesajınızı yazın:");
                     if (message) {
-                        inbox.push(`Kullanıcı: ${recipientUsername}, Mesaj: ${message}`);
-                        alert("Mesaj başarıyla gönderildi!");
-                    } else {
-                        alert("Mesaj boş olamaz.");
+                        inbox.push(`Mesaj: ${message}`);
+                        alert("Mesaj başarıyla gönderildi.");
                     }
                 } else {
-                    alert("Bu kullanıcı bulunamadı veya bir yöneticiye mesaj gönderemezsiniz.");
+                    alert("Kullanıcı bulunamadı.");
                 }
             } else {
-                alert("Bu işlemi sadece yönetici yapabilir.");
+                alert("Sadece Yönetici bu butonu kullanabilir.");
             }
         }
 
@@ -168,6 +181,7 @@
                 if (email.endsWith("@gmail.com") || email.endsWith("@outlook.com")) {
                     const newGeneratedPassword = Math.random().toString(36).slice(-8);
                     user.password = newGeneratedPassword;
+                    saveUsers();
                     alert("Yeni şifreniz e-posta adresinize gönderildi: " + newGeneratedPassword);
                 } else {
                     alert("Geçersiz e-posta adresi.");
