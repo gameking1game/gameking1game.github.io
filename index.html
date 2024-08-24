@@ -35,7 +35,7 @@
             <button id="accountActionButton" class="red-button" style="display: none;" onclick="createAccount()">HESAP İŞLEM</button>
             <button id="announcementButton" class="green-button" style="display: none;" onclick="sendAnnouncement()">DUYURU GÖNDER</button>
             <button id="inboxButton" class="green-button" onclick="viewInbox()">GELEN KUTUSU</button>
-            <button id="accountMessagesButton" class="green-button" style="display: none;" onclick="sendPrivateMessage()">HESAP MESAJLARI</button>
+            <button id="sendMessageButton" class="green-button" style="display: none;" onclick="sendPrivateMessage()">MESAJ GÖNDERME</button>
         </div>
     </div>
 
@@ -53,7 +53,6 @@
         let currentUser = null;
         let announcements = [];
         let inbox = [];
-        let privateMessages = {};
 
         function login() {
             const username = document.getElementById('loginUsername').value;
@@ -69,7 +68,7 @@
                 if (currentUser.isAdmin) {
                     document.getElementById('accountActionButton').style.display = 'block';
                     document.getElementById('announcementButton').style.display = 'block';
-                    document.getElementById('accountMessagesButton').style.display = 'block';
+                    document.getElementById('sendMessageButton').style.display = 'block';
                 }
             } else {
                 alert("Geçersiz kullanıcı adı veya şifre.");
@@ -83,7 +82,7 @@
         }
 
         function showRegisterAlert() {
-            alert('GAME KİNG POYRAZ DESTEK DİSCORD SUNUCUSUNDAN ŞİFRE ALIN');
+            alert('GAME KİNG POYRAZ DESTEK\'ten şifrenizi alın');
         }
 
         function changePassword() {
@@ -140,27 +139,43 @@
 
         function sendPrivateMessage() {
             if (currentUser.isAdmin) {
-                const targetUser = prompt("Mesaj göndermek istediğiniz kullanıcı adını girin:");
-                const target = users.find(u => u.username === targetUser);
+                const recipientUsername = prompt("Mesaj göndermek istediğiniz kullanıcı adını girin:");
+                const recipient = users.find(user => user.username === recipientUsername && !user.isAdmin);
 
-                if (target) {
+                if (recipient) {
                     const message = prompt("Göndermek istediğiniz mesajı yazın:");
                     if (message) {
-                        if (!privateMessages[target.username]) {
-                            privateMessages[target.username] = [];
-                        }
-                        privateMessages[target.username].push(message);
-                        alert("Mesaj başarıyla gönderildi.");
+                        inbox.push(`Kullanıcı: ${recipientUsername}, Mesaj: ${message}`);
+                        alert("Mesaj başarıyla gönderildi!");
                     } else {
                         alert("Mesaj boş olamaz.");
                     }
                 } else {
-                    alert("Kullanıcı bulunamadı.");
+                    alert("Bu kullanıcı bulunamadı veya bir yöneticiye mesaj gönderemezsiniz.");
                 }
             } else {
-                alert("Bu butonu sadece yönetici kullanabilir.");
+                alert("Bu işlemi sadece yönetici yapabilir.");
             }
         }
+
+        document.getElementById('forgotPasswordButton').addEventListener('click', function() {
+            const username = prompt("Kullanıcı adınızı girin:");
+            const user = users.find(u => u.username === username);
+
+            if (user) {
+                const email = prompt("E-posta adresinizi girin (örn: user@gmail.com):");
+
+                if (email.endsWith("@gmail.com") || email.endsWith("@outlook.com")) {
+                    const newGeneratedPassword = Math.random().toString(36).slice(-8);
+                    user.password = newGeneratedPassword;
+                    alert("Yeni şifreniz e-posta adresinize gönderildi: " + newGeneratedPassword);
+                } else {
+                    alert("Geçersiz e-posta adresi.");
+                }
+            } else {
+                alert("Kullanıcı bulunamadı.");
+            }
+        });
     </script>
 </body>
 </html>
