@@ -3,189 +3,156 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Giriş Sistemi</title>
+    <title>Kullanıcı Giriş Sistemi</title>
     <style>
-        body { font-family: Arial, sans-serif; }
-        .container { max-width: 400px; margin: auto; padding: 20px; border: 1px solid #ccc; border-radius: 10px; }
-        label, input, button { display: block; width: 100%; margin-bottom: 10px; }
-        button { padding: 10px; background-color: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        body { font-family: Arial, sans-serif; background-color: #f0f0f0; }
+        .container { width: 400px; margin: 50px auto; padding: 20px; background-color: white; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); }
+        h2 { text-align: center; }
+        input, button { width: 100%; padding: 10px; margin: 10px 0; }
+        button { background-color: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; }
         button:hover { background-color: #45a049; }
-        #loginSection, #registerSection, #verifySection, #infoSection { display: none; }
-        #infoSection { margin-top: 20px; }
-        .red-button { background-color: red; color: white; padding: 10px; border: none; border-radius: 5px; cursor: pointer; margin-top: 20px; }
-        .red-button:hover { background-color: darkred; }
-        .green-button { background-color: green; color: white; padding: 10px; border: none; border-radius: 5px; cursor: pointer; margin-top: 20px; }
+        .green-button { background-color: green; }
         .green-button:hover { background-color: darkgreen; }
+        .red-button { background-color: red; color: white; border-radius: 5px; }
+        .red-button:hover { background-color: darkred; }
+        footer { text-align: center; margin-top: 20px; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>Hoş Geldiniz</h2>
-        <button id="hasAccountButton">Giriş Yap</button>
-        <button id="registerButton">Hesap Oluştur</button>
-
-        <!-- Giriş Yapma Bölümü -->
+        <h2>Kullanıcı Giriş Sistemi</h2>
         <div id="loginSection">
-            <h2>Giriş Yap</h2>
-            <form id="loginForm">
-                <label for="loginUsername">Kullanıcı Adı:</label>
-                <input type="text" id="loginUsername" required>
-                <label for="loginPassword">Şifre:</label>
-                <input type="password" id="loginPassword" required>
-                <button type="submit">Giriş Yap</button>
-            </form>
+            <input type="text" id="loginUsername" placeholder="Kullanıcı Adı" required>
+            <input type="password" id="loginPassword" placeholder="Şifre" required>
+            <button onclick="login()">Giriş Yap</button>
+            <button id="forgotPasswordButton">Şifremi Unuttum</button>
+            <button onclick="showRegisterAlert()">Hesap Oluştur</button>
         </div>
-
-        <!-- Hesap Oluşturma Bölümü -->
-        <div id="registerSection">
-            <h2>Hesap Oluştur</h2>
-            <form id="registerForm">
-                <label for="registerUsername">Kullanıcı Adı:</label>
-                <input type="text" id="registerUsername" required>
-                <label for="registerPassword">Şifre:</label>
-                <input type="password" id="registerPassword" required>
-                <label for="secondPassword">2. Şifre (2 Adımlı Doğrulama):</label>
-                <input type="password" id="secondPassword" required>
-                <button type="submit">Hesap Oluştur</button>
-            </form>
-        </div>
-
-        <!-- 2 Adımlı Doğrulama Bölümü -->
-        <div id="verifySection">
-            <h2>2. Adımlı Doğrulama</h2>
-            <form id="verifyForm">
-                <label for="verifyPassword">2. Şifrenizi Girin:</label>
-                <input type="password" id="verifyPassword" required>
-                <button type="submit">Doğrula</button>
-            </form>
-        </div>
-
-        <!-- Bilgi Bölümü -->
-        <div id="infoSection">
-            <h2>Hoşgeldiniz, <span id="userName"></span></h2>
-            <button id="logoutButton">Çıkış Yap</button>
-            <button id="accountActionButton" class="red-button" style="display: none;">HESAP İŞLEM</button>
-            <button id="sendAnnouncementButton" class="green-button" style="display: none;">DUYURU GÖNDER</button>
+        <div id="infoSection" style="display:none;">
+            <h3>Hoşgeldiniz, <span id="userName"></span></h3>
+            <button id="logoutButton" onclick="logout()">Çıkış Yap</button>
+            <button id="changePasswordButton" class="green-button" onclick="changePassword()">Şifremi Değiştir</button>
+            <button id="accountActionButton" class="red-button" style="display: none;" onclick="createAccount()">HESAP İŞLEM</button>
+            <button id="announcementButton" class="green-button" style="display: none;" onclick="sendAnnouncement()">DUYURU GÖNDER</button>
+            <button id="inboxButton" class="green-button" onclick="viewInbox()">GELEN KUTUSU</button>
         </div>
     </div>
 
+    <footer>
+        <p>KING GAME PLAY MEDİA GROUP</p>
+    </footer>
+
     <script>
-        const adminUsers = [
-            { username: "Yönetici", password: "A1", secondPassword: "1234", isAdmin: true },
-            { username: "Yönetici2", password: "B2", secondPassword: "5678", isAdmin: true }
+        const users = [
+            { username: "Yönetici", password: "Yönetici1", passwordChanges: 0, isAdmin: true },
+            { username: "Yönetici2", password: "A1", passwordChanges: 0, isAdmin: true },
+            { username: "Kullanıcı", password: "user123", passwordChanges: 0, isAdmin: false }
         ];
 
-        function getUsers() {
-            const users = localStorage.getItem('users');
-            return users ? JSON.parse(users) : adminUsers;
-        }
-
-        function saveUsers(users) {
-            localStorage.setItem('users', JSON.stringify(users));
-        }
-
-        let users = getUsers();
         let currentUser = null;
+        let announcements = [];
+        let inbox = [];
 
-        document.getElementById('hasAccountButton').addEventListener('click', function() {
-            document.getElementById('loginSection').style.display = 'block';
-            document.getElementById('registerSection').style.display = 'none';
-            document.getElementById('verifySection').style.display = 'none';
-            document.getElementById('infoSection').style.display = 'none';
-        });
-
-        document.getElementById('registerButton').addEventListener('click', function() {
-            document.getElementById('loginSection').style.display = 'none';
-            document.getElementById('registerSection').style.display = 'block';
-            document.getElementById('verifySection').style.display = 'none';
-            document.getElementById('infoSection').style.display = 'none';
-        });
-
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
-            e.preventDefault();
+        function login() {
             const username = document.getElementById('loginUsername').value;
             const password = document.getElementById('loginPassword').value;
 
-            const user = users.find(u => u.username === username && u.password === password);
+            currentUser = users.find(user => user.username === username && user.password === password);
 
-            if (user) {
-                currentUser = user;
+            if (currentUser) {
                 document.getElementById('loginSection').style.display = 'none';
-                document.getElementById('verifySection').style.display = 'block';
+                document.getElementById('infoSection').style.display = 'block';
+                document.getElementById('userName').innerText = currentUser.username;
+                
+                if (currentUser.isAdmin) {
+                    document.getElementById('accountActionButton').style.display = 'block';
+                    document.getElementById('announcementButton').style.display = 'block';
+                }
             } else {
                 alert("Geçersiz kullanıcı adı veya şifre.");
             }
-        });
+        }
 
-        document.getElementById('registerForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const username = document.getElementById('registerUsername').value;
-            const password = document.getElementById('registerPassword').value;
-            const secondPassword = document.getElementById('secondPassword').value;
-
-            if (users.find(u => u.username === username)) {
-                alert("Bu kullanıcı adı zaten mevcut.");
-            } else {
-                users.push({ username: username, password: password, secondPassword: secondPassword, isAdmin: false });
-                saveUsers(users);
-                alert("Hesabınız başarıyla oluşturuldu!");
-                document.getElementById('registerSection').style.display = 'none';
-                document.getElementById('loginSection').style.display = 'block';
-            }
-        });
-
-        document.getElementById('verifyForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const verifyPassword = document.getElementById('verifyPassword').value;
-
-            if (verifyPassword === currentUser.secondPassword) {
-                handleLoginSuccess(currentUser);
-            } else {
-                alert("Geçersiz 2. şifre.");
-            }
-        });
-
-        document.getElementById('logoutButton').addEventListener('click', function() {
+        function logout() {
             currentUser = null;
-            document.getElementById('infoSection').style.display = 'none';
             document.getElementById('loginSection').style.display = 'block';
-        });
+            document.getElementById('infoSection').style.display = 'none';
+        }
 
-        function handleLoginSuccess(user) {
-            document.getElementById('verifySection').style.display = 'none';
-            document.getElementById('infoSection').style.display = 'block';
-            document.getElementById('userName').textContent = user.username;
+        function showRegisterAlert() {
+            alert('GAME KİNG POYRAZ DESTEK\'ten şifrenizi alın');
+        }
 
-            if (user.isAdmin) {
-                document.getElementById('accountActionButton').style.display = 'block';
-                document.getElementById('sendAnnouncementButton').style.display = 'block';
+        function changePassword() {
+            if (currentUser.passwordChanges >= 2) {
+                alert("Maksimum şifre değiştirme hakkınızı doldurdunuz.");
+                return;
+            }
+
+            const newPassword = prompt("Yeni şifrenizi girin:");
+            if (newPassword) {
+                currentUser.password = newPassword;
+                currentUser.passwordChanges += 1;
+                alert("Şifreniz başarıyla değiştirildi.");
+            } else {
+                alert("Şifre değiştirilemedi.");
             }
         }
 
-        document.getElementById('accountActionButton').addEventListener('click', function() {
-            if (currentUser && currentUser.isAdmin) {
+        function createAccount() {
+            if (currentUser.isAdmin) {
                 const newUsername = prompt("Yeni kullanıcı adı girin:");
                 const newPassword = prompt("Yeni şifre girin:");
-                const newSecondPassword = prompt("Yeni 2. şifre girin:");
 
-                if (newUsername && newPassword && newSecondPassword) {
+                if (newUsername && newPassword) {
                     if (users.find(u => u.username === newUsername)) {
                         alert("Bu kullanıcı adı zaten mevcut.");
                     } else {
-                        users.push({ username: newUsername, password: newPassword, secondPassword: newSecondPassword, isAdmin: false });
-                        saveUsers(users);
+                        users.push({ username: newUsername, password: newPassword, passwordChanges: 0, isAdmin: false });
                         alert("Yeni hesap başarıyla oluşturuldu!");
                     }
                 } else {
-                    alert("Kullanıcı adı, şifre ve 2. şifre boş olamaz.");
+                    alert("Kullanıcı adı ve şifre boş olamaz.");
                 }
             } else {
                 alert("Sadece Yönetici bu butonu kullanabilir.");
             }
-        });
+        }
 
-        document.getElementById('sendAnnouncementButton').addEventListener('click', function() {
-            if (currentUser && currentUser.isAdmin) {
-                const announcement = prompt("Göndermek istediğiniz duyuruyu yazın:");
-                if (announcement) {
-                    alert("Duyuru gönderildi: "
+        function sendAnnouncement() {
+            const message = prompt("Göndermek istediğiniz duyuruyu yazın:");
+            if (message) {
+                announcements.push(message);
+                alert("Duyuru başarıyla gönderildi!");
+            }
+        }
+
+        function viewInbox() {
+            if (inbox.length === 0) {
+                alert("Henüz gelen mesajınız yok.");
+            } else {
+                alert("Gelen Mesajlar:\n" + inbox.join("\n"));
+            }
+        }
+
+        document.getElementById('forgotPasswordButton').addEventListener('click', function() {
+            const username = prompt("Kullanıcı adınızı girin:");
+            const user = users.find(u => u.username === username);
+
+            if (user) {
+                const email = prompt("E-posta adresinizi girin (örn: user@gmail.com):");
+
+                if (email.endsWith("@gmail.com") || email.endsWith("@outlook.com")) {
+                    const newGeneratedPassword = Math.random().toString(36).slice(-8);
+                    user.password = newGeneratedPassword;
+                    alert("Yeni şifreniz e-posta adresinize gönderildi: " + newGeneratedPassword);
+                } else {
+                    alert("Geçersiz e-posta adresi.");
+                }
+            } else {
+                alert("Kullanıcı bulunamadı.");
+            }
+        });
+    </script>
+</body>
+</html>
