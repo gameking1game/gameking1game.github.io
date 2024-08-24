@@ -6,6 +6,13 @@
     <title>Kullanıcı Giriş Sistemi</title>
     <style>
         /* Same CSS as before */
+        .blinking { 
+            background-color: yellow; 
+            animation: blink 1s step-start infinite; 
+        }
+        @keyframes blink { 
+            50% { background-color: white; } 
+        }
     </style>
 </head>
 <body>
@@ -25,8 +32,8 @@
             <button id="accountActionButton" class="red-button" style="display: none;" onclick="createAccount()">HESAP İŞLEM</button>
             <button id="announcementButton" class="green-button" style="display: none;" onclick="sendAnnouncement()">DUYURU GÖNDER</button>
             <button id="inboxButton" class="green-button" onclick="viewInbox()">GELEN KUTUSU</button>
-            <button id="userMessagesButton" class="yellow-button" style="display: none;" onclick="viewUserMessages()">KULLANICI MESAJLARI</button>
-            <button id="adminMessageButton" class="green-button" onclick="sendAdminMessage()">YÖNETİCİYE MESAJ GÖNDER</button>
+            <button id="userMessagesButton" class="blinking" style="display: none;" onclick="viewUserMessages()">KULLANICI MESAJLARI</button>
+            <button id="adminMessageButton" class="green-button" style="display: none;" onclick="sendAdminMessage()">YÖNETİCİYE MESAJ GÖNDER</button>
         </div>
     </div>
 
@@ -68,6 +75,7 @@
                     document.getElementById('accountActionButton').style.display = 'block';
                     document.getElementById('announcementButton').style.display = 'block';
                     document.getElementById('userMessagesButton').style.display = userMessages.length > 0 ? 'block' : 'none';
+                    document.getElementById('adminMessageButton').style.display = 'block';
                 }
             } else {
                 alert("Geçersiz kullanıcı adı veya şifre.");
@@ -155,9 +163,14 @@
         }
 
         function sendAdminMessage() {
+            if (!currentUser.isAdmin) {
+                alert("Bu butonu sadece yöneticiler kullanabilir.");
+                return;
+            }
+
             const message = prompt("Yöneticiye göndermek istediğiniz mesajı yazın:");
             if (message) {
-                userMessages.push({ username: currentUser.username, message: message });
+                inbox.push(`Kullanıcı ${currentUser.username}: ${message}`);
                 alert("Mesajınız başarıyla gönderildi!");
                 document.getElementById('userMessagesButton').style.display = 'block';
             }
