@@ -26,7 +26,7 @@
             <input type="password" id="loginPassword" placeholder="Şifre" required>
             <button onclick="login()">Giriş Yap</button>
             <button id="forgotPasswordButton">Şifremi Unuttum</button>
-            <button onclick="showRegisterForm()">Hesap Oluştur</button>
+            <button onclick="showRegisterAlert()">Hesap Oluştur</button>
         </div>
         <div id="registerSection" style="display:none;">
             <h3>Hesap Oluştur</h3>
@@ -49,20 +49,17 @@
     </footer>
 
     <script>
-        // Varsayılan kullanıcılar
         const defaultUsers = [
             { username: "Yönetici", password: "Yönetici1", passwordChanges: 0, isAdmin: true },
             { username: "Yönetici2", password: "A1", passwordChanges: 0, isAdmin: true },
             { username: "Kullanıcı", password: "user123", passwordChanges: 0, isAdmin: false }
         ];
 
-        // localStorage'dan kullanıcıları yükle, yoksa varsayılan kullanıcıları kullan
         let users = JSON.parse(localStorage.getItem('users')) || defaultUsers;
         let currentUser = null;
         let announcements = JSON.parse(localStorage.getItem('announcements')) || [];
         let inbox = [];
 
-        // Giriş yapma işlevi
         function login() {
             const username = document.getElementById('loginUsername').value;
             const password = document.getElementById('loginPassword').value;
@@ -84,20 +81,16 @@
             }
         }
 
-        // Çıkış yapma işlevi
         function logout() {
             currentUser = null;
             document.getElementById('loginSection').style.display = 'block';
             document.getElementById('infoSection').style.display = 'none';
         }
 
-        // Kayıt formunu gösterme işlevi
-        function showRegisterForm() {
-            document.getElementById('loginSection').style.display = 'none';
-            document.getElementById('registerSection').style.display = 'block';
+        function showRegisterAlert() {
+            alert('GAME KİNG POYRAZ DESTEK DİSCORD sunucusundan şifre alın');
         }
 
-        // Yeni kullanıcı kaydetme işlevi
         function register() {
             const username = document.getElementById('registerUsername').value;
             const password = document.getElementById('registerPassword').value;
@@ -113,7 +106,6 @@
             }
         }
 
-        // Şifre değiştirme işlevi
         function changePassword() {
             if (currentUser.passwordChanges >= 2) {
                 alert("Maksimum şifre değiştirme hakkınızı doldurdunuz.");
@@ -131,7 +123,6 @@
             }
         }
 
-        // Yönetici tarafından yeni hesap oluşturma işlevi
         function createAccount() {
             if (currentUser.isAdmin) {
                 const newUsername = prompt("Yeni kullanıcı adı girin:");
@@ -153,7 +144,6 @@
             }
         }
 
-        // Duyuru gönderme işlevi
         function sendAnnouncement() {
             if (currentUser.isAdmin) {
                 const message = prompt("Göndermek istediğiniz duyuruyu yazın:");
@@ -167,7 +157,6 @@
             }
         }
 
-        // Gelen kutusunu görüntüleme işlevi
         function viewInbox() {
             if (inbox.length === 0) {
                 alert("Henüz gelen mesajınız yok.");
@@ -176,7 +165,6 @@
             }
         }
 
-        // Şifremi Unuttum işlevi
         document.getElementById('forgotPasswordButton').addEventListener('click', function() {
             const username = prompt("Kullanıcı adınızı girin:");
             const user = users.find(user => user.username === username);
@@ -186,7 +174,6 @@
                 alert("Kullanıcı bulunamadı.");
             }
         });
-
     </script>
 </body>
 </html>
