@@ -5,13 +5,49 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kullanıcı Giriş Sistemi</title>
     <style>
-        /* Same CSS as before */
-        .blinking { 
-            background-color: yellow; 
-            animation: blink 1s step-start infinite; 
+        /* CSS styles */
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
         }
-        @keyframes blink { 
-            50% { background-color: white; } 
+
+        input, button {
+            display: block;
+            margin: 10px 0;
+            padding: 10px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        button.green-button {
+            background-color: green;
+            color: white;
+        }
+
+        button.red-button {
+            background-color: red;
+            color: white;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        footer a {
+            margin: 0 10px;
+        }
+
+        .blinking {
+            background-color: yellow;
+            animation: blink 1s step-start infinite;
+        }
+
+        @keyframes blink {
+            50% { background-color: white; }
         }
     </style>
 </head>
@@ -39,8 +75,8 @@
 
     <footer>
         <p>KING GAME PLAY MEDİA GROUP</p>
-        <a href="https://discord.com/invite/XZBUFenvCX"><img src="discord-logo.png" alt="Discord"></a>
-        <a href="https://www.instagram.com/gamekingpoyraz/"><img src="instagram-logo.png" alt="Instagram"></a>
+        <a href="https://discord.com/invite/XZBUFenvCX"><img src="discord-logo.png" alt="Discord" width="30" height="30"></a>
+        <a href="https://www.instagram.com/gamekingpoyraz/"><img src="instagram-logo.png" alt="Instagram" width="30" height="30"></a>
     </footer>
 
     <script>
@@ -170,7 +206,7 @@
 
             const message = prompt("Yöneticiye göndermek istediğiniz mesajı yazın:");
             if (message) {
-                inbox.push(`Kullanıcı ${currentUser.username}: ${message}`);
+                userMessages.push({ username: currentUser.username, message: message });
                 alert("Mesajınız başarıyla gönderildi!");
                 document.getElementById('userMessagesButton').style.display = 'block';
             }
