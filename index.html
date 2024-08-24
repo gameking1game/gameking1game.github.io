@@ -26,7 +26,13 @@
             <input type="password" id="loginPassword" placeholder="Şifre" required>
             <button onclick="login()">Giriş Yap</button>
             <button id="forgotPasswordButton">Şifremi Unuttum</button>
-            <button onclick="showRegisterAlert()">Hesap Oluştur</button>
+            <button onclick="showRegisterForm()">Hesap Oluştur</button>
+        </div>
+        <div id="registerSection" style="display:none;">
+            <h3>Hesap Oluştur</h3>
+            <input type="text" id="registerUsername" placeholder="Yeni Kullanıcı Adı" required>
+            <input type="password" id="registerPassword" placeholder="Yeni Şifre" required>
+            <button onclick="register()">Kayıt Ol</button>
         </div>
         <div id="infoSection" style="display:none;">
             <h3>Hoşgeldiniz, <span id="userName"></span></h3>
@@ -61,6 +67,7 @@
 
             if (currentUser) {
                 document.getElementById('loginSection').style.display = 'none';
+                document.getElementById('registerSection').style.display = 'none';
                 document.getElementById('infoSection').style.display = 'block';
                 document.getElementById('userName').innerText = currentUser.username;
                 
@@ -79,8 +86,23 @@
             document.getElementById('infoSection').style.display = 'none';
         }
 
-        function showRegisterAlert() {
-            alert('GAME KİNG POYRAZ DESTEK\'ten şifrenizi alın');
+        function showRegisterForm() {
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('registerSection').style.display = 'block';
+        }
+
+        function register() {
+            const username = document.getElementById('registerUsername').value;
+            const password = document.getElementById('registerPassword').value;
+
+            if (users.find(u => u.username === username)) {
+                alert("Bu kullanıcı adı zaten mevcut.");
+            } else {
+                users.push({ username: username, password: password, passwordChanges: 0, isAdmin: false });
+                alert("Hesabınız başarıyla oluşturuldu!");
+                document.getElementById('registerSection').style.display = 'none';
+                document.getElementById('loginSection').style.display = 'block';
+            }
         }
 
         function changePassword() {
@@ -120,10 +142,14 @@
         }
 
         function sendAnnouncement() {
-            const message = prompt("Göndermek istediğiniz duyuruyu yazın:");
-            if (message) {
-                announcements.push(message);
-                alert("Duyuru başarıyla gönderildi!");
+            if (currentUser.isAdmin) {
+                const message = prompt("Göndermek istediğiniz duyuruyu yazın:");
+                if (message) {
+                    announcements.push(message);
+                    alert("Duyuru başarıyla gönderildi!");
+                }
+            } else {
+                alert("Sadece Yönetici bu butonu kullanabilir.");
             }
         }
 
