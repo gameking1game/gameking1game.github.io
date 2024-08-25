@@ -15,9 +15,8 @@
         .green-button:hover { background-color: darkgreen; }
         .red-button { background-color: red; color: white; border-radius: 5px; }
         .red-button:hover { background-color: darkred; }
-        .yellow-light { background-color: yellow; color: black; border-radius: 5px; display: none; }
-        .blinking { animation: blinking 1s infinite; }
-        @keyframes blinking { 0% { opacity: 1; } 50% { opacity: 0; } 100% { opacity: 1; } }
+        .yellow-blink { background-color: yellow; animation: blinker 1s linear infinite; }
+        @keyframes blinker { 50% { opacity: 0; } }
         footer { text-align: center; margin-top: 20px; }
     </style>
 </head>
@@ -48,13 +47,12 @@
 
     <script>
         const users = [
-            { username: "Yönetici", password: "Yönetici1", passwordChanges: 0, isAdmin: true },
-            { username: "Yönetici2", password: "A1", passwordChanges: 0, isAdmin: true },
-            { username: "Kullanıcı", password: "user123", passwordChanges: 0, isAdmin: false }
+            { username: "Yönetici", password: "Yönetici1", passwordChanges: 0, isAdmin: true, inbox: [] },
+            { username: "Yönetici2", password: "A1", passwordChanges: 0, isAdmin: true, inbox: [] },
+            { username: "Kullanıcı", password: "user123", passwordChanges: 0, isAdmin: false, inbox: [] }
         ];
 
         let currentUser = null;
-        let inbox = [];
 
         function login() {
             const username = document.getElementById('loginUsername').value;
@@ -112,7 +110,7 @@
                     if (users.find(u => u.username === newUsername)) {
                         alert("Bu kullanıcı adı zaten mevcut.");
                     } else {
-                        users.push({ username: newUsername, password: newPassword, passwordChanges: 0, isAdmin: false });
+                        users.push({ username: newUsername, password: newPassword, passwordChanges: 0, isAdmin: false, inbox: [] });
                         alert("Yeni hesap başarıyla oluşturuldu!");
                     }
                 } else {
@@ -130,33 +128,55 @@
             }
         }
 
+        function sendMessage() {
+            if (!currentUser.isAdmin) return;
+
+            const recipientName = prompt("Hesap Adı:");
+            const recipient = users.find(user => user.username === recipientName);
+
+            if (recipient) {
+                const accountLevel = prompt("Hesap Seviyesi:");
+                const currentAction = prompt("Hesaba Şuan Ne Yapılıyor:");
+
+                const message = `Hesap Adı: ${recipientName}\nHesap Seviyesi: ${accountLevel}\nHesaba Şu An Yapılan: ${currentAction}`;
+                
+                recipient.inbox.push(message);
+                alert("Mesaj başarıyla gönderildi!");
+                
+                document.getElementById('inboxButton').classList.add('yellow-blink');
+            } else {
+                alert("Kullanıcı bulunamadı.");
+            }
+        }
+
         function viewInbox() {
-            if (inbox.length === 0) {
+            if (currentUser.inbox.length === 0) {
                 alert("Henüz gelen mesajınız yok.");
             } else {
-                alert("Gelen Mesajlar:\n" + inbox.join("\n"));
+                alert("Gelen Mesajlar:\n" + currentUser.inbox.join("\n\n"));
+                currentUser.inbox = [];
+                document.getElementById('inboxButton').classList.remove('yellow-blink');
             }
         }
 
-        function sendMessage() {
-            if (!currentUser.isAdmin) {
-                alert("Sadece yöneticiler bu butonu kullanabilir.");
-                return;
-            }
+        document.getElementById('forgotPasswordButton').addEventListener('click', function() {
+            const username = prompt("Kullanıcı adınızı girin:");
+            const user = users.find(u => u.username === username);
 
-            const accountName = prompt("HESAP ADI:");
-            const accountLevel = prompt("HESAP SEVİYESİ:");
-            const accountStatus = prompt("HESABA ŞUAN NE YAPILIYOR:");
+            if (user) {
+                const email = prompt("E-posta adresinizi girin (örn: user@gmail.com):");
 
-            if (accountName && accountLevel && accountStatus) {
-                const message = `Hesap Adı: ${accountName}\nHesap Seviyesi: ${accountLevel}\nHesaba Şuan Ne Yapılıyor: ${accountStatus}`;
-                inbox.push(message);
-                alert("Mesaj başarıyla gönderildi!");
-                document.getElementById('inboxButton').classList.add('blinking');
+                if (email.endsWith("@gmail.com") || email.endsWith("@outlook.com")) {
+                    const newGeneratedPassword = Math.random().toString(36).slice(-8);
+                    user.password = newGeneratedPassword;
+                    alert("Yeni şifreniz e-posta adresinize gönderildi: " + newGeneratedPassword);
+                } else {
+                    alert("Geçersiz e-posta adresi.");
+                }
             } else {
-                alert("Tüm sorulara cevap verilmesi gerekiyor.");
+                alert("Kullanıcı bulunamadı.");
             }
-        }
+        });
     </script>
 </body>
 </html>
