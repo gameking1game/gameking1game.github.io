@@ -5,7 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kullanıcı Giriş Sistemi</title>
     <style>
-        /* Same CSS as before */
+        /* Add your existing CSS styles here */
+        .green-button {
+            background-color: green;
+            color: white;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+            margin: 5px;
+        }
     </style>
 </head>
 <body>
@@ -15,44 +23,22 @@
             <input type="text" id="loginUsername" placeholder="Kullanıcı Adı" required>
             <input type="password" id="loginPassword" placeholder="Şifre" required>
             <button onclick="login()">Giriş Yap</button>
-            <button id="forgotPasswordButton">Şifremi Unuttum</button>
-            <button onclick="showRegisterAlert()">Hesap Oluştur</button>
         </div>
         <div id="infoSection" style="display:none;">
             <h3>Hoşgeldiniz, <span id="userName"></span></h3>
             <button id="logoutButton" onclick="logout()">Çıkış Yap</button>
-            <button id="changePasswordButton" class="green-button" onclick="changePassword()">Şifremi Değiştir</button>
-            <button id="accountActionButton" class="red-button" style="display: none;" onclick="createAccount()">HESAP İŞLEM</button>
-            <button id="announcementButton" class="green-button" style="display: none;" onclick="sendAnnouncement()">DUYURU GÖNDER</button>
-            <button id="inboxButton" class="green-button" onclick="viewInbox()">GELEN KUTUSU</button>
-            <button id="userMessagesButton" class="yellow-button" style="display: none;" onclick="viewUserMessages()">KULLANICI MESAJLARI</button>
-            <button id="adminMessageButton" class="green-button" onclick="sendAdminMessage()">YÖNETİCİYE MESAJ GÖNDER</button>
-            <button id="sendInfoButton" class="green-button" style="display: none;" onclick="sendInfo()">BİLGİ GÖNDER</button>
+            <button id="sendInfoButton" class="green-button" style="display:none;" onclick="sendAccountInfo()">Bilgi Gönder</button>
         </div>
     </div>
 
-    <footer>
-        <p>KING GAME PLAY MEDİA GROUP</p>
-        <a href="https://discord.com/invite/XZBUFenvCX"><img src="discord-logo.png" alt="Discord"></a>
-        <a href="https://www.instagram.com/gamekingpoyraz/"><img src="instagram-logo.png" alt="Instagram"></a>
-    </footer>
-
     <script>
-        // Load users from localStorage or use default users
-        let users = JSON.parse(localStorage.getItem('users')) || [
-            { username: "Yönetici", password: "Yönetici1", passwordChanges: 0, isAdmin: true },
-            { username: "Yönetici2", password: "A1", passwordChanges: 0, isAdmin: true },
-            { username: "Kullanıcı", password: "user123", passwordChanges: 0, isAdmin: false }
+        let users = [
+            { username: "Yönetici", password: "Yönetici1", isAdmin: true },
+            { username: "Yönetici2", password: "A1", isAdmin: true },
+            { username: "Kullanıcı", password: "user123", isAdmin: false }
         ];
 
         let currentUser = null;
-        let announcements = [];
-        let inbox = [];
-        let userMessages = [];
-
-        function saveUsers() {
-            localStorage.setItem('users', JSON.stringify(users));
-        }
 
         function login() {
             const username = document.getElementById('loginUsername').value;
@@ -66,9 +52,6 @@
                 document.getElementById('userName').innerText = currentUser.username;
 
                 if (currentUser.isAdmin) {
-                    document.getElementById('accountActionButton').style.display = 'block';
-                    document.getElementById('announcementButton').style.display = 'block';
-                    document.getElementById('userMessagesButton').style.display = userMessages.length > 0 ? 'block' : 'none';
                     document.getElementById('sendInfoButton').style.display = 'block';
                 }
             } else {
@@ -80,97 +63,23 @@
             currentUser = null;
             document.getElementById('loginSection').style.display = 'block';
             document.getElementById('infoSection').style.display = 'none';
+            document.getElementById('sendInfoButton').style.display = 'none';
         }
 
-        function showRegisterAlert() {
-            alert('GAME KİNG POYRAZ DESTEK\'ten şifrenizi alın');
-        }
-
-        function changePassword() {
-            if (currentUser.passwordChanges >= 2) {
-                alert("Maksimum şifre değiştirme hakkınızı doldurdunuz.");
-                return;
-            }
-
-            const newPassword = prompt("Yeni şifrenizi girin:");
-            if (newPassword) {
-                currentUser.password = newPassword;
-                currentUser.passwordChanges += 1;
-                saveUsers(); // Save updated user data
-                alert("Şifreniz başarıyla değiştirildi.");
-            } else {
-                alert("Şifre değiştirilemedi.");
-            }
-        }
-
-        function createAccount() {
-            if (currentUser.isAdmin) {
-                const newUsername = prompt("Yeni kullanıcı adı girin:");
-                const newPassword = prompt("Yeni şifre girin:");
-
-                if (newUsername && newPassword) {
-                    if (users.find(u => u.username === newUsername)) {
-                        alert("Bu kullanıcı adı zaten mevcut.");
-                    } else {
-                        users.push({ username: newUsername, password: newPassword, passwordChanges: 0, isAdmin: false });
-                        saveUsers(); // Save the new user data
-                        alert("Yeni hesap başarıyla oluşturuldu!");
-                    }
-                } else {
-                    alert("Kullanıcı adı ve şifre boş olamaz.");
-                }
-            } else {
-                alert("Sadece Yönetici bu butonu kullanabilir.");
-            }
-        }
-
-        function sendAnnouncement() {
-            if (!currentUser.isAdmin) return;
-
-            const message = prompt("Göndermek istediğiniz duyuruyu yazın:");
-            if (message) {
-                announcements.push(message);
-                alert("Duyuru başarıyla gönderildi!");
-            }
-        }
-
-        function viewInbox() {
-            if (inbox.length === 0) {
-                alert("Henüz gelen mesajınız yok.");
-            } else {
-                alert("Gelen Mesajlar:\n" + inbox.join("\n"));
-            }
-        }
-
-        function viewUserMessages() {
-            if (!currentUser.isAdmin) {
-                alert("Bu butonu sadece yöneticiler kullanabilir.");
-                return;
-            }
-
-            if (userMessages.length === 0) {
-                alert("Henüz gelen kullanıcı mesajı yok.");
-            } else {
-                const messages = userMessages.map(msg => `${msg.username}: ${msg.message}`).join("\n");
-                alert("Gelen Kullanıcı Mesajları:\n" + messages);
-            }
-        }
-
-        function sendAdminMessage() {
-            const message = prompt("Yöneticiye göndermek istediğiniz mesajı yazın:");
-            if (message) {
-                userMessages.push({ username: currentUser.username, message: message });
-                alert("Mesajınız başarıyla gönderildi!");
-                document.getElementById('userMessagesButton').style.display = 'block';
-            }
-        }
-
-        function sendInfo() {
+        function sendAccountInfo() {
             if (!currentUser.isAdmin) return;
 
             const accountName = prompt("Hesap adı nedir?");
             const accountCup = prompt("Hesap kupası?");
             const accountClub = prompt("Hesap kulübü?");
-            const accountID = prompt("Hesap ID'si nedir?");
+            const accountId = prompt("Hesap ID'si ne?");
 
-            if (accountName && accountCup && accountClub && accountID) {
+            if (accountName && accountCup && accountClub && accountId) {
+                alert(`Bilgiler kullanıcıya gönderildi:\nHesap Adı: ${accountName}\nHesap Kupası: ${accountCup}\nHesap Kulübü: ${accountClub}\nHesap ID: ${accountId}`);
+            } else {
+                alert("Tüm bilgileri doldurmanız gerekiyor.");
+            }
+        }
+    </script>
+</body>
+</html>
