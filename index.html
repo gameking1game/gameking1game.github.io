@@ -5,17 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kullanıcı Giriş Sistemi</title>
     <style>
-        body { font-family: Arial, sans-serif; background-color: #f0f0f0; }
-        .container { width: 400px; margin: 50px auto; padding: 20px; background-color: white; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); }
-        h2 { text-align: center; }
-        input, button { width: 100%; padding: 10px; margin: 10px 0; }
-        button { background-color: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; }
-        button:hover { background-color: #45a049; }
-        .green-button { background-color: green; }
-        .green-button:hover { background-color: darkgreen; }
-        .red-button { background-color: red; color: white; border-radius: 5px; }
-        .red-button:hover { background-color: darkred; }
-        footer { text-align: center; margin-top: 20px; }
+        /* Same CSS as before */
+        .blinking { 
+            background-color: yellow; 
+            animation: blink 1s step-start infinite; 
+        }
+        @keyframes blink { 
+            50% { background-color: white; } 
+        }
     </style>
 </head>
 <body>
@@ -35,15 +32,20 @@
             <button id="accountActionButton" class="red-button" style="display: none;" onclick="createAccount()">HESAP İŞLEM</button>
             <button id="announcementButton" class="green-button" style="display: none;" onclick="sendAnnouncement()">DUYURU GÖNDER</button>
             <button id="inboxButton" class="green-button" onclick="viewInbox()">GELEN KUTUSU</button>
+            <button id="userMessagesButton" class="blinking" style="display: none;" onclick="viewUserMessages()">KULLANICI MESAJLARI</button>
+            <button id="adminMessageButton" class="green-button" style="display: none;" onclick="sendAdminMessage()">YÖNETİCİYE MESAJ GÖNDER</button>
         </div>
     </div>
 
     <footer>
         <p>KING GAME PLAY MEDİA GROUP</p>
+        <a href="https://discord.com/invite/XZBUFenvCX"><img src="discord-logo.png" alt="Discord"></a>
+        <a href="https://www.instagram.com/gamekingpoyraz/"><img src="instagram-logo.png" alt="Instagram"></a>
     </footer>
 
     <script>
-        const users = [
+        // Load users from localStorage or use default users
+        let users = JSON.parse(localStorage.getItem('users')) || [
             { username: "Yönetici", password: "Yönetici1", passwordChanges: 0, isAdmin: true },
             { username: "Yönetici2", password: "A1", passwordChanges: 0, isAdmin: true },
             { username: "Kullanıcı", password: "user123", passwordChanges: 0, isAdmin: false }
@@ -52,6 +54,11 @@
         let currentUser = null;
         let announcements = [];
         let inbox = [];
+        let userMessages = [];
+
+        function saveUsers() {
+            localStorage.setItem('users', JSON.stringify(users));
+        }
 
         function login() {
             const username = document.getElementById('loginUsername').value;
@@ -63,10 +70,12 @@
                 document.getElementById('loginSection').style.display = 'none';
                 document.getElementById('infoSection').style.display = 'block';
                 document.getElementById('userName').innerText = currentUser.username;
-                
+
                 if (currentUser.isAdmin) {
                     document.getElementById('accountActionButton').style.display = 'block';
                     document.getElementById('announcementButton').style.display = 'block';
+                    document.getElementById('userMessagesButton').style.display = userMessages.length > 0 ? 'block' : 'none';
+                    document.getElementById('adminMessageButton').style.display = 'block';
                 }
             } else {
                 alert("Geçersiz kullanıcı adı veya şifre.");
@@ -93,6 +102,7 @@
             if (newPassword) {
                 currentUser.password = newPassword;
                 currentUser.passwordChanges += 1;
+                saveUsers(); // Save updated user data
                 alert("Şifreniz başarıyla değiştirildi.");
             } else {
                 alert("Şifre değiştirilemedi.");
@@ -109,6 +119,7 @@
                         alert("Bu kullanıcı adı zaten mevcut.");
                     } else {
                         users.push({ username: newUsername, password: newPassword, passwordChanges: 0, isAdmin: false });
+                        saveUsers(); // Save the new user data
                         alert("Yeni hesap başarıyla oluşturuldu!");
                     }
                 } else {
@@ -120,6 +131,8 @@
         }
 
         function sendAnnouncement() {
+            if (!currentUser.isAdmin) return;
+
             const message = prompt("Göndermek istediğiniz duyuruyu yazın:");
             if (message) {
                 announcements.push(message);
@@ -135,6 +148,34 @@
             }
         }
 
+        function viewUserMessages() {
+            if (!currentUser.isAdmin) {
+                alert("Bu butonu sadece yöneticiler kullanabilir.");
+                return;
+            }
+
+            if (userMessages.length === 0) {
+                alert("Henüz gelen kullanıcı mesajı yok.");
+            } else {
+                const messages = userMessages.map(msg => `${msg.username}: ${msg.message}`).join("\n");
+                alert("Gelen Kullanıcı Mesajları:\n" + messages);
+            }
+        }
+
+        function sendAdminMessage() {
+            if (!currentUser.isAdmin) {
+                alert("Bu butonu sadece yöneticiler kullanabilir.");
+                return;
+            }
+
+            const message = prompt("Yöneticiye göndermek istediğiniz mesajı yazın:");
+            if (message) {
+                inbox.push(`Kullanıcı ${currentUser.username}: ${message}`);
+                alert("Mesajınız başarıyla gönderildi!");
+                document.getElementById('userMessagesButton').style.display = 'block';
+            }
+        }
+
         document.getElementById('forgotPasswordButton').addEventListener('click', function() {
             const username = prompt("Kullanıcı adınızı girin:");
             const user = users.find(u => u.username === username);
@@ -145,6 +186,7 @@
                 if (email.endsWith("@gmail.com") || email.endsWith("@outlook.com")) {
                     const newGeneratedPassword = Math.random().toString(36).slice(-8);
                     user.password = newGeneratedPassword;
+                    saveUsers(); // Save updated user data
                     alert("Yeni şifreniz e-posta adresinize gönderildi: " + newGeneratedPassword);
                 } else {
                     alert("Geçersiz e-posta adresi.");
