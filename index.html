@@ -15,6 +15,9 @@
         .green-button:hover { background-color: darkgreen; }
         .red-button { background-color: red; color: white; border-radius: 5px; }
         .red-button:hover { background-color: darkred; }
+        .yellow-light { background-color: yellow; color: black; border-radius: 5px; display: none; }
+        .blinking { animation: blinking 1s infinite; }
+        @keyframes blinking { 0% { opacity: 1; } 50% { opacity: 0; } 100% { opacity: 1; } }
         footer { text-align: center; margin-top: 20px; }
     </style>
 </head>
@@ -35,7 +38,7 @@
             <button id="accountActionButton" class="red-button" style="display: none;" onclick="createAccount()">HESAP İŞLEM</button>
             <button id="announcementButton" class="green-button" style="display: none;" onclick="sendAnnouncement()">DUYURU GÖNDER</button>
             <button id="inboxButton" class="green-button" onclick="viewInbox()">GELEN KUTUSU</button>
-            <button id="sendMessageButton" class="green-button" style="display: none;" onclick="sendMessage()">MESAJ GÖNDER</button> <!-- Yeni Eklendi -->
+            <button id="sendMessageButton" class="green-button" style="display: none;" onclick="sendMessage()">MESAJ GÖNDER</button>
         </div>
     </div>
 
@@ -51,7 +54,6 @@
         ];
 
         let currentUser = null;
-        let announcements = [];
         let inbox = [];
 
         function login() {
@@ -68,7 +70,7 @@
                 if (currentUser.isAdmin) {
                     document.getElementById('accountActionButton').style.display = 'block';
                     document.getElementById('announcementButton').style.display = 'block';
-                    document.getElementById('sendMessageButton').style.display = 'block'; // Yeni Eklendi
+                    document.getElementById('sendMessageButton').style.display = 'block';
                 }
             } else {
                 alert("Geçersiz kullanıcı adı veya şifre.");
@@ -124,7 +126,6 @@
         function sendAnnouncement() {
             const message = prompt("Göndermek istediğiniz duyuruyu yazın:");
             if (message) {
-                announcements.push(message);
                 alert("Duyuru başarıyla gönderildi!");
             }
         }
@@ -137,42 +138,25 @@
             }
         }
 
-        function sendMessage() { // Yeni Eklendi
-            if (currentUser.isAdmin) {
-                const accountName = prompt("Hesap adı nedir?");
-                const accountCup = prompt("Hesap kupası?");
-                const accountClub = prompt("Hesap kulübü?");
-                const accountID = prompt("Hesap ID'si ne?");
-                
-                if (accountName && accountCup && accountClub && accountID) {
-                    inbox.push(`Hesap Adı: ${accountName}, Hesap Kupası: ${accountCup}, Hesap Kulübü: ${accountClub}, Hesap ID: ${accountID}`);
-                    alert("Mesaj başarıyla gönderildi!");
-                } else {
-                    alert("Tüm bilgileri doldurmanız gerekmektedir.");
-                }
+        function sendMessage() {
+            if (!currentUser.isAdmin) {
+                alert("Sadece yöneticiler bu butonu kullanabilir.");
+                return;
+            }
+
+            const accountName = prompt("HESAP ADI:");
+            const accountLevel = prompt("HESAP SEVİYESİ:");
+            const accountStatus = prompt("HESABA ŞUAN NE YAPILIYOR:");
+
+            if (accountName && accountLevel && accountStatus) {
+                const message = `Hesap Adı: ${accountName}\nHesap Seviyesi: ${accountLevel}\nHesaba Şuan Ne Yapılıyor: ${accountStatus}`;
+                inbox.push(message);
+                alert("Mesaj başarıyla gönderildi!");
+                document.getElementById('inboxButton').classList.add('blinking');
             } else {
-                alert("Sadece Yönetici bu butonu kullanabilir.");
+                alert("Tüm sorulara cevap verilmesi gerekiyor.");
             }
         }
-
-        document.getElementById('forgotPasswordButton').addEventListener('click', function() {
-            const username = prompt("Kullanıcı adınızı girin:");
-            const user = users.find(u => u.username === username);
-
-            if (user) {
-                const email = prompt("E-posta adresinizi girin (örn: user@gmail.com):");
-
-                if (email.endsWith("@gmail.com") || email.endsWith("@outlook.com")) {
-                    const newGeneratedPassword = Math.random().toString(36).slice(-8);
-                    user.password = newGeneratedPassword;
-                    alert("Yeni şifreniz e-posta adresinize gönderildi: " + newGeneratedPassword);
-                } else {
-                    alert("Geçersiz e-posta adresi.");
-                }
-            } else {
-                alert("Kullanıcı bulunamadı.");
-            }
-        });
     </script>
 </body>
 </html>
