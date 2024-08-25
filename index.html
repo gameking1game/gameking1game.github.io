@@ -5,15 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kullanıcı Giriş Sistemi</title>
     <style>
-        /* Add your existing CSS styles here */
-        .green-button {
-            background-color: green;
-            color: white;
-            padding: 10px;
-            border: none;
-            cursor: pointer;
-            margin: 5px;
-        }
+        body { font-family: Arial, sans-serif; background-color: #f0f0f0; }
+        .container { width: 400px; margin: 50px auto; padding: 20px; background-color: white; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); }
+        h2 { text-align: center; }
+        input, button { width: 100%; padding: 10px; margin: 10px 0; }
+        button { background-color: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background-color: #45a049; }
+        .green-button { background-color: green; }
+        .green-button:hover { background-color: darkgreen; }
+        .red-button { background-color: red; color: white; border-radius: 5px; }
+        .red-button:hover { background-color: darkred; }
+        footer { text-align: center; margin-top: 20px; }
     </style>
 </head>
 <body>
@@ -23,22 +25,33 @@
             <input type="text" id="loginUsername" placeholder="Kullanıcı Adı" required>
             <input type="password" id="loginPassword" placeholder="Şifre" required>
             <button onclick="login()">Giriş Yap</button>
+            <button id="forgotPasswordButton">Şifremi Unuttum</button>
+            <button onclick="showRegisterAlert()">Hesap Oluştur</button>
         </div>
         <div id="infoSection" style="display:none;">
             <h3>Hoşgeldiniz, <span id="userName"></span></h3>
             <button id="logoutButton" onclick="logout()">Çıkış Yap</button>
-            <button id="sendInfoButton" class="green-button" style="display:none;" onclick="sendAccountInfo()">Bilgi Gönder</button>
+            <button id="changePasswordButton" class="green-button" onclick="changePassword()">Şifremi Değiştir</button>
+            <button id="accountActionButton" class="red-button" style="display: none;" onclick="createAccount()">HESAP İŞLEM</button>
+            <button id="announcementButton" class="green-button" style="display: none;" onclick="sendAnnouncement()">DUYURU GÖNDER</button>
+            <button id="inboxButton" class="green-button" onclick="viewInbox()">GELEN KUTUSU</button>
         </div>
     </div>
 
+    <footer>
+        <p>KING GAME PLAY MEDİA GROUP</p>
+    </footer>
+
     <script>
-        let users = [
-            { username: "Yönetici", password: "Yönetici1", isAdmin: true },
-            { username: "Yönetici2", password: "A1", isAdmin: true },
-            { username: "Kullanıcı", password: "user123", isAdmin: false }
+        const users = [
+            { username: "Yönetici", password: "Yönetici1", passwordChanges: 0, isAdmin: true },
+            { username: "Yönetici2", password: "A1", passwordChanges: 0, isAdmin: true },
+            { username: "Kullanıcı", password: "user123", passwordChanges: 0, isAdmin: false }
         ];
 
         let currentUser = null;
+        let announcements = [];
+        let inbox = [];
 
         function login() {
             const username = document.getElementById('loginUsername').value;
@@ -50,9 +63,10 @@
                 document.getElementById('loginSection').style.display = 'none';
                 document.getElementById('infoSection').style.display = 'block';
                 document.getElementById('userName').innerText = currentUser.username;
-
+                
                 if (currentUser.isAdmin) {
-                    document.getElementById('sendInfoButton').style.display = 'block';
+                    document.getElementById('accountActionButton').style.display = 'block';
+                    document.getElementById('announcementButton').style.display = 'block';
                 }
             } else {
                 alert("Geçersiz kullanıcı adı veya şifre.");
@@ -63,23 +77,82 @@
             currentUser = null;
             document.getElementById('loginSection').style.display = 'block';
             document.getElementById('infoSection').style.display = 'none';
-            document.getElementById('sendInfoButton').style.display = 'none';
         }
 
-        function sendAccountInfo() {
-            if (!currentUser.isAdmin) return;
+        function showRegisterAlert() {
+            alert('GAME KİNG POYRAZ DESTEK\'ten şifrenizi alın');
+        }
 
-            const accountName = prompt("Hesap adı nedir?");
-            const accountCup = prompt("Hesap kupası?");
-            const accountClub = prompt("Hesap kulübü?");
-            const accountId = prompt("Hesap ID'si ne?");
+        function changePassword() {
+            if (currentUser.passwordChanges >= 2) {
+                alert("Maksimum şifre değiştirme hakkınızı doldurdunuz.");
+                return;
+            }
 
-            if (accountName && accountCup && accountClub && accountId) {
-                alert(`Bilgiler kullanıcıya gönderildi:\nHesap Adı: ${accountName}\nHesap Kupası: ${accountCup}\nHesap Kulübü: ${accountClub}\nHesap ID: ${accountId}`);
+            const newPassword = prompt("Yeni şifrenizi girin:");
+            if (newPassword) {
+                currentUser.password = newPassword;
+                currentUser.passwordChanges += 1;
+                alert("Şifreniz başarıyla değiştirildi.");
             } else {
-                alert("Tüm bilgileri doldurmanız gerekiyor.");
+                alert("Şifre değiştirilemedi.");
             }
         }
+
+        function createAccount() {
+            if (currentUser.isAdmin) {
+                const newUsername = prompt("Yeni kullanıcı adı girin:");
+                const newPassword = prompt("Yeni şifre girin:");
+
+                if (newUsername && newPassword) {
+                    if (users.find(u => u.username === newUsername)) {
+                        alert("Bu kullanıcı adı zaten mevcut.");
+                    } else {
+                        users.push({ username: newUsername, password: newPassword, passwordChanges: 0, isAdmin: false });
+                        alert("Yeni hesap başarıyla oluşturuldu!");
+                    }
+                } else {
+                    alert("Kullanıcı adı ve şifre boş olamaz.");
+                }
+            } else {
+                alert("Sadece Yönetici bu butonu kullanabilir.");
+            }
+        }
+
+        function sendAnnouncement() {
+            const message = prompt("Göndermek istediğiniz duyuruyu yazın:");
+            if (message) {
+                announcements.push(message);
+                alert("Duyuru başarıyla gönderildi!");
+            }
+        }
+
+        function viewInbox() {
+            if (inbox.length === 0) {
+                alert("Henüz gelen mesajınız yok.");
+            } else {
+                alert("Gelen Mesajlar:\n" + inbox.join("\n"));
+            }
+        }
+
+        document.getElementById('forgotPasswordButton').addEventListener('click', function() {
+            const username = prompt("Kullanıcı adınızı girin:");
+            const user = users.find(u => u.username === username);
+
+            if (user) {
+                const email = prompt("E-posta adresinizi girin (örn: user@gmail.com):");
+
+                if (email.endsWith("@gmail.com") || email.endsWith("@outlook.com")) {
+                    const newGeneratedPassword = Math.random().toString(36).slice(-8);
+                    user.password = newGeneratedPassword;
+                    alert("Yeni şifreniz e-posta adresinize gönderildi: " + newGeneratedPassword);
+                } else {
+                    alert("Geçersiz e-posta adresi.");
+                }
+            } else {
+                alert("Kullanıcı bulunamadı.");
+            }
+        });
     </script>
 </body>
 </html>
