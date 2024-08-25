@@ -35,6 +35,7 @@
             <button id="accountActionButton" class="red-button" style="display: none;" onclick="createAccount()">HESAP İŞLEM</button>
             <button id="announcementButton" class="green-button" style="display: none;" onclick="sendAnnouncement()">DUYURU GÖNDER</button>
             <button id="inboxButton" class="green-button" onclick="viewInbox()">GELEN KUTUSU</button>
+            <button id="sendMessageButton" class="green-button" style="display: none;" onclick="sendMessage()">MESAJ GÖNDER</button> <!-- Yeni Eklendi -->
         </div>
     </div>
 
@@ -67,6 +68,7 @@
                 if (currentUser.isAdmin) {
                     document.getElementById('accountActionButton').style.display = 'block';
                     document.getElementById('announcementButton').style.display = 'block';
+                    document.getElementById('sendMessageButton').style.display = 'block'; // Yeni Eklendi
                 }
             } else {
                 alert("Geçersiz kullanıcı adı veya şifre.");
@@ -132,6 +134,24 @@
                 alert("Henüz gelen mesajınız yok.");
             } else {
                 alert("Gelen Mesajlar:\n" + inbox.join("\n"));
+            }
+        }
+
+        function sendMessage() { // Yeni Eklendi
+            if (currentUser.isAdmin) {
+                const accountName = prompt("Hesap adı nedir?");
+                const accountCup = prompt("Hesap kupası?");
+                const accountClub = prompt("Hesap kulübü?");
+                const accountID = prompt("Hesap ID'si ne?");
+                
+                if (accountName && accountCup && accountClub && accountID) {
+                    inbox.push(`Hesap Adı: ${accountName}, Hesap Kupası: ${accountCup}, Hesap Kulübü: ${accountClub}, Hesap ID: ${accountID}`);
+                    alert("Mesaj başarıyla gönderildi!");
+                } else {
+                    alert("Tüm bilgileri doldurmanız gerekmektedir.");
+                }
+            } else {
+                alert("Sadece Yönetici bu butonu kullanabilir.");
             }
         }
 
