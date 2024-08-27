@@ -175,10 +175,13 @@
                 const currentActivity = prompt("Hesaba şu an ne yapılıyor?");
                 
                 const message = `Hesap Adı: ${accountName}\nHesap Seviyesi: ${accountLevel}\nHesaba Şu An Ne Yapılıyor: ${currentActivity}`;
-                recipientInbox.push({ sender: currentUser.username, message: message });
+                if (recipient.inbox === undefined) recipient.inbox = [];
+                recipient.inbox.push(message);
 
                 alert("Mesajınız başarıyla gönderildi!");
-                document.getElementById('inboxButton').style.backgroundColor = "yellow";
+                if (currentUser.username === recipient.username) {
+                    document.getElementById('inboxButton').style.backgroundColor = "yellow";
+                }
             } else {
                 alert("Kullanıcı bulunamadı.");
             }
@@ -186,4 +189,21 @@
 
         function viewUserMessages() {
             if (!currentUser.isAdmin) {
-                alert
+                alert("Bu butonu sadece yönetici kullanabilir.");
+                return;
+            }
+            
+            if (userMessages.length === 0) {
+                alert("Henüz kullanıcı mesajınız yok.");
+            } else {
+                alert("Kullanıcı Mesajları:\n" + userMessages.join("\n"));
+                userMessages = []; // Mesajlar okunduktan sonra temizlenir.
+            }
+        }
+
+        function viewAccountInfo() {
+            alert("Hesap Bilgileri:\n" + accountInfo.join("\n"));
+        }
+    </script>
+</body>
+</html>
