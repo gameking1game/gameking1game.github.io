@@ -1,256 +1,143 @@
-<!DOCTYPE html>
-<html lang="tr">
+<script>
+    const users = [
+        { username: "Yönetici", password: "Yönetici1", passwordChanges: 0, isAdmin: true },
+        { username: "Yönetici2", password: "A1", passwordChanges: 0, isAdmin: true },
+        { username: "GAMEKINGPOYRAZ", password: "ADMIN1", passwordChanges: 0, isAdmin: true, transactionNumber: "ADMINGAMEKİNGPOYRAZ" },
+        { username: "Kullanıcı", password: "user123", passwordChanges: 0, isAdmin: false }
+    ];
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kullanıcı Giriş Sistemi</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
-        }
+    let currentUser = null;
+    let announcements = [];
+    let inbox = [];
 
-        .container {
-            width: 400px;
-            margin: 50px auto;
-            padding: 20px;
-            background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
+    function login() {
+        const username = document.getElementById('loginUsername').value;
+        const password = document.getElementById('loginPassword').value;
 
-        h2 {
-            text-align: center;
-        }
+        currentUser = users.find(user => user.username === username && user.password === password);
 
-        input,
-        button {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-        }
-
-        button {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background-color: #45a049;
-        }
-
-        .green-button {
-            background-color: green;
-        }
-
-        .green-button:hover {
-            background-color: darkgreen;
-        }
-
-        .red-button {
-            background-color: red;
-            color: white;
-            border-radius: 5px;
-        }
-
-        .red-button:hover {
-            background-color: darkred;
-        }
-
-        footer {
-            text-align: center;
-            margin-top: 20px;
-        }
-    </style>
-</head>
-
-<body>
-    <div class="container">
-        <h2>Kullanıcı Giriş Sistemi</h2>
-        <div id="loginSection">
-            <input type="text" id="loginUsername" placeholder="Kullanıcı Adı" required>
-            <input type="password" id="loginPassword" placeholder="Şifre" required>
-            <button onclick="login()">Giriş Yap</button>
-            <button id="forgotPasswordButton">Şifremi Unuttum</button>
-            <button onclick="showRegisterAlert()">Hesap Oluştur</button>
-        </div>
-        <div id="infoSection" style="display:none;">
-            <h3>Hoşgeldiniz, <span id="userName"></span></h3>
-            <button id="logoutButton" onclick="logout()">Çıkış Yap</button>
-            <button id="changePasswordButton" class="green-button" onclick="changePassword()">Şifremi Değiştir</button>
-            <button id="accountActionButton" class="red-button" style="display: none;" onclick="createAccount()">HESAP İŞLEM</button>
-            <button id="announcementButton" class="green-button" style="display: none;" onclick="sendAnnouncement()">DUYURU GÖNDER</button>
-            <button id="messageButton" class="green-button" style="display: none;" onclick="sendMessage()">MESAJ GÖNDER</button>
-            <button id="inboxButton" class="green-button" onclick="viewInbox()">GELEN KUTUSU</button>
-        </div>
-    </div>
-
-    <footer>
-        <p>KING GAME PLAY MEDİA GROUP</p>
-    </footer>
-
-    <script>
-        // Initialize users from localStorage or use default values
-        let users = JSON.parse(localStorage.getItem('users')) || [
-            { username: "Yönetici", password: "Yönetici1", passwordChanges: 0, isAdmin: true, transactionNumber: "ADMINGAMEKİNGPOYRAZ" },
-            { username: "Yönetici2", password: "A1", passwordChanges: 0, isAdmin: true, transactionNumber: "ADMINGAMEKİNGPOYRAZ" },
-            { username: "Kullanıcı", password: "user123", passwordChanges: 0, isAdmin: false, transactionNumber: "" }
-        ];
-
-        let currentUser = null;
-        let inbox = JSON.parse(localStorage.getItem('inbox')) || [];
-
-        function login() {
-            const username = document.getElementById('loginUsername').value;
-            const password = document.getElementById('loginPassword').value;
-
-            currentUser = users.find(user => user.username === username && user.password === password);
-
-            if (currentUser) {
-                const transactionNumber = prompt("İşlem numaranızı girin:");
-                if (transactionNumber === currentUser.transactionNumber) {
-                    document.getElementById('loginSection').style.display = 'none';
-                    document.getElementById('infoSection').style.display = 'block';
-                    document.getElementById('userName').innerText = currentUser.username;
-
-                    if (currentUser.isAdmin) {
-                        document.getElementById('accountActionButton').style.display = 'block';
-                        document.getElementById('announcementButton').style.display = 'block';
-                        document.getElementById('messageButton').style.display = 'block';
-                    }
-
-                    // Check if there are any new messages for the user
-                    if (inbox.some(msg => msg.to === currentUser.username && !msg.read)) {
-                        document.getElementById('inboxButton').style.backgroundColor = 'yellow';
-                    }
-                } else {
-                    alert("Geçersiz işlem numarası.");
-                }
+        if (currentUser) {
+            const transactionNumber = prompt("İşlem numaranızı yazın:");
+            if (currentUser.isAdmin && transactionNumber === currentUser.transactionNumber) {
+                showUserInterface();
+            } else if (!currentUser.isAdmin) {
+                showUserInterface();
             } else {
-                alert("Geçersiz kullanıcı adı veya şifre.");
+                alert("Geçersiz işlem numarası.");
+                logout();
             }
+        } else {
+            alert("Geçersiz kullanıcı adı veya şifre.");
+        }
+    }
+
+    function logout() {
+        currentUser = null;
+        document.getElementById('loginSection').style.display = 'block';
+        document.getElementById('infoSection').style.display = 'none';
+    }
+
+    function showRegisterAlert() {
+        alert('GAME KİNG POYRAZ DESTEK\'TEN ŞİFRE ALIN');
+    }
+
+    function changePassword() {
+        if (currentUser.passwordChanges >= 2) {
+            alert("Maksimum şifre değiştirme hakkınızı doldurdunuz.");
+            return;
         }
 
-        function logout() {
-            currentUser = null;
-            document.getElementById('loginSection').style.display = 'block';
-            document.getElementById('infoSection').style.display = 'none';
+        const newPassword = prompt("Yeni şifrenizi girin:");
+        if (newPassword) {
+            currentUser.password = newPassword;
+            currentUser.passwordChanges += 1;
+            alert("Şifreniz başarıyla değiştirildi.");
+        } else {
+            alert("Şifre değiştirilemedi.");
         }
+    }
 
-        function showRegisterAlert() {
+    function createAccount() {
+        if (currentUser.isAdmin) {
             const newUsername = prompt("Yeni kullanıcı adı girin:");
             const newPassword = prompt("Yeni şifre girin:");
-            const transactionNumber = prompt("İşlem numarası oluşturun:");
+            const transactionNumber = prompt("Yeni işlem numarası girin:");
 
             if (newUsername && newPassword && transactionNumber) {
                 if (users.find(u => u.username === newUsername)) {
                     alert("Bu kullanıcı adı zaten mevcut.");
                 } else {
-                    users.push({ username: newUsername, password: newPassword, passwordChanges: 0, isAdmin: false, transactionNumber: transactionNumber });
-                    localStorage.setItem('users', JSON.stringify(users)); // Save to localStorage
+                    users.push({ username: newUsername, password: newPassword, transactionNumber: transactionNumber, passwordChanges: 0, isAdmin: false });
                     alert("Yeni hesap başarıyla oluşturuldu!");
                 }
             } else {
                 alert("Kullanıcı adı, şifre ve işlem numarası boş olamaz.");
             }
+        } else {
+            alert("Sadece Yönetici bu butonu kullanabilir.");
         }
+    }
 
-        function changePassword() {
-            if (currentUser.passwordChanges >= 2) {
-                alert("Maksimum şifre değiştirme hakkınızı doldurdunuz.");
-                return;
-            }
+    function sendAnnouncement() {
+        const message = prompt("Göndermek istediğiniz duyuruyu yazın:");
+        if (message) {
+            announcements.push(message);
+            alert("Duyuru başarıyla gönderildi!");
+        }
+    }
 
-            const newPassword = prompt("Yeni şifrenizi girin:");
-            if (newPassword) {
-                currentUser.password = newPassword;
-                currentUser.passwordChanges += 1;
-                localStorage.setItem('users', JSON.stringify(users)); // Save to localStorage
-                alert("Şifreniz başarıyla değiştirildi.");
+    function viewInbox() {
+        if (inbox.length === 0) {
+            alert("Henüz gelen mesajınız yok.");
+        } else {
+            alert("Gelen Mesajlar:\n" + inbox.join("\n"));
+        }
+    }
+
+    function sendMessage() {
+        const accountName = prompt("HESAP ADI:");
+        const accountLevel = prompt("HESAP SEVİYESİ:");
+        const accountStatus = prompt("HESABA ŞUAN NE YAPILIYOR:");
+
+        const recipient = users.find(u => u.username === accountName);
+        if (recipient) {
+            inbox.push(`HESAP ADI: ${accountName}\nHESAP SEVİYESİ: ${accountLevel}\nHESABA ŞUAN NE YAPILIYOR: ${accountStatus}`);
+            alert("Mesaj başarıyla gönderildi!");
+            // Make the inbox button blink for the specific user
+            document.getElementById('inboxButton').classList.add('yellow-blink');
+        } else {
+            alert("Kullanıcı bulunamadı.");
+        }
+    }
+
+    document.getElementById('forgotPasswordButton').addEventListener('click', function() {
+        const username = prompt("Kullanıcı adınızı girin:");
+        const user = users.find(u => u.username === username);
+
+        if (user) {
+            const email = prompt("E-posta adresinizi girin (örn: user@gmail.com):");
+
+            if (email.endsWith("@gmail.com") || email.endsWith("@outlook.com")) {
+                const newGeneratedPassword = Math.random().toString(36).slice(-8);
+                user.password = newGeneratedPassword;
+                alert("Yeni şifreniz e-posta adresinize gönderildi: " + newGeneratedPassword);
             } else {
-                alert("Şifre değiştirilemedi.");
+                alert("Geçersiz e-posta adresi.");
             }
+        } else {
+            alert("Kullanıcı bulunamadı.");
         }
+    });
 
-        function createAccount() {
-            if (currentUser.isAdmin) {
-                const newUsername = prompt("Yeni kullanıcı adı girin:");
-                const newPassword = prompt("Yeni şifre girin:");
-                const transactionNumber = prompt("Yeni işlem numarası oluşturun:");
+    function showUserInterface() {
+        document.getElementById('loginSection').style.display = 'none';
+        document.getElementById('infoSection').style.display = 'block';
+        document.getElementById('userName').innerText = currentUser.username;
 
-                if (newUsername && newPassword && transactionNumber) {
-                    if (users.find(u => u.username === newUsername)) {
-                        alert("Bu kullanıcı adı zaten mevcut.");
-                    } else {
-                        users.push({ username: newUsername, password: newPassword, passwordChanges: 0, isAdmin: false, transactionNumber: transactionNumber });
-                        localStorage.setItem('users', JSON.stringify(users)); // Save to localStorage
-                        alert("Yeni hesap başarıyla oluşturuldu!");
-                    }
-                } else {
-                    alert("Kullanıcı adı, şifre ve işlem numarası boş olamaz.");
-                }
-            } else {
-                alert("Sadece Yönetici bu butonu kullanabilir.");
-            }
+        if (currentUser.isAdmin) {
+            document.getElementById('accountActionButton').style.display = 'block';
+            document.getElementById('announcementButton').style.display = 'block';
+            document.getElementById('messageButton').style.display = 'block';
         }
-
-        function sendAnnouncement() {
-            const message = prompt("Göndermek istediğiniz duyuruyu yazın:");
-            if (message) {
-                inbox.push({ to: 'all', message: message, read: false });
-                localStorage.setItem('inbox', JSON.stringify(inbox)); // Save to localStorage
-                alert("Duyuru başarıyla gönderildi!");
-            }
-        }
-
-        function sendMessage() {
-            const recipient = prompt("Mesaj göndermek istediğiniz kullanıcı adını girin:");
-            const user = users.find(u => u.username === recipient);
-
-            if (user) {
-                const accountName = prompt("HESAP ADI:");
-                const accountLevel = prompt("HESAP SEVİYESİ:");
-                const accountStatus = prompt("HESABA ŞUAN NE YAPILIYOR:");
-
-                const message = `HESAP ADI: ${accountName}\nHESAP SEVİYESİ: ${accountLevel}\nHESABA ŞUAN NE YAPILIYOR: ${accountStatus}`;
-                inbox.push({ to: recipient, message: message, read: false });
-                localStorage.setItem('inbox', JSON.stringify(inbox)); // Save to localStorage
-                alert("Mesaj başarıyla gönderildi!");
-
-                // Highlight the recipient's inbox button with yellow color
-                if (currentUser.username === recipient) {
-                    document.getElementById('inboxButton').style.backgroundColor = 'yellow';
-                }
-            } else {
-                alert("Geçersiz kullanıcı adı.");
-            }
-        }
-
-        function viewInbox() {
-            const messages = inbox.filter(msg => msg.to === currentUser.username || msg.to === 'all');
-            if (messages.length > 0) {
-                let messageText = messages.map(msg => msg.message).join('\n\n');
-                alert("Gelen Kutusu:\n\n" + messageText);
-
-                // Mark messages as read
-                inbox.forEach(msg => {
-                    if (msg.to === currentUser.username || msg.to === 'all') {
-                        msg.read = true;
-                    }
-                });
-                localStorage.setItem('inbox', JSON.stringify(inbox)); // Save to localStorage
-
-                // Reset the inbox button color
-                document.getElementById('inboxButton').style.backgroundColor = '';
-            } else {
-                alert("Gelen kutusu boş.");
-            }
-        }
-    </script>
-</body>
-
-</html>
+    }
+</script>
