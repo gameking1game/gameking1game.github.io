@@ -84,6 +84,7 @@
             <button id="changePasswordButton" class="green-button" onclick="changePassword()">Şifremi Değiştir</button>
             <button id="accountActionButton" class="red-button" style="display: none;" onclick="createAccount()">HESAP İŞLEM</button>
             <button id="announcementButton" class="green-button" style="display: none;" onclick="sendAnnouncement()">DUYURU GÖNDER</button>
+            <button id="messageButton" class="green-button" style="display: none;" onclick="sendMessage()">MESAJ GÖNDER</button>
             <button id="inboxButton" class="green-button" onclick="viewInbox()">GELEN KUTUSU</button>
         </div>
     </div>
@@ -93,15 +94,15 @@
     </footer>
 
     <script>
-        const users = [
+        // Initialize users from localStorage or use default values
+        let users = JSON.parse(localStorage.getItem('users')) || [
             { username: "Yönetici", password: "Yönetici1", passwordChanges: 0, isAdmin: true, transactionNumber: "ADMINGAMEKİNGPOYRAZ" },
             { username: "Yönetici2", password: "A1", passwordChanges: 0, isAdmin: true, transactionNumber: "ADMINGAMEKİNGPOYRAZ" },
             { username: "Kullanıcı", password: "user123", passwordChanges: 0, isAdmin: false, transactionNumber: "" }
         ];
 
         let currentUser = null;
-        let announcements = [];
-        let inbox = [];
+        let inbox = JSON.parse(localStorage.getItem('inbox')) || [];
 
         function login() {
             const username = document.getElementById('loginUsername').value;
@@ -119,6 +120,12 @@
                     if (currentUser.isAdmin) {
                         document.getElementById('accountActionButton').style.display = 'block';
                         document.getElementById('announcementButton').style.display = 'block';
+                        document.getElementById('messageButton').style.display = 'block';
+                    }
+
+                    // Check if there are any new messages for the user
+                    if (inbox.some(msg => msg.to === currentUser.username && !msg.read)) {
+                        document.getElementById('inboxButton').style.backgroundColor = 'yellow';
                     }
                 } else {
                     alert("Geçersiz işlem numarası.");
@@ -144,6 +151,7 @@
                     alert("Bu kullanıcı adı zaten mevcut.");
                 } else {
                     users.push({ username: newUsername, password: newPassword, passwordChanges: 0, isAdmin: false, transactionNumber: transactionNumber });
+                    localStorage.setItem('users', JSON.stringify(users)); // Save to localStorage
                     alert("Yeni hesap başarıyla oluşturuldu!");
                 }
             } else {
@@ -161,6 +169,7 @@
             if (newPassword) {
                 currentUser.password = newPassword;
                 currentUser.passwordChanges += 1;
+                localStorage.setItem('users', JSON.stringify(users)); // Save to localStorage
                 alert("Şifreniz başarıyla değiştirildi.");
             } else {
                 alert("Şifre değiştirilemedi.");
@@ -178,6 +187,7 @@
                         alert("Bu kullanıcı adı zaten mevcut.");
                     } else {
                         users.push({ username: newUsername, password: newPassword, passwordChanges: 0, isAdmin: false, transactionNumber: transactionNumber });
+                        localStorage.setItem('users', JSON.stringify(users)); // Save to localStorage
                         alert("Yeni hesap başarıyla oluşturuldu!");
                     }
                 } else {
@@ -191,37 +201,55 @@
         function sendAnnouncement() {
             const message = prompt("Göndermek istediğiniz duyuruyu yazın:");
             if (message) {
-                announcements.push(message);
+                inbox.push({ to: 'all', message: message, read: false });
+                localStorage.setItem('inbox', JSON.stringify(inbox)); // Save to localStorage
                 alert("Duyuru başarıyla gönderildi!");
             }
         }
 
-        function viewInbox() {
-            if (inbox.length === 0) {
-                alert("Henüz gelen mesajınız yok.");
+        function sendMessage() {
+            const recipient = prompt("Mesaj göndermek istediğiniz kullanıcı adını girin:");
+            const user = users.find(u => u.username === recipient);
+
+            if (user) {
+                const accountName = prompt("HESAP ADI:");
+                const accountLevel = prompt("HESAP SEVİYESİ:");
+                const accountStatus = prompt("HESABA ŞUAN NE YAPILIYOR:");
+
+                const message = `HESAP ADI: ${accountName}\nHESAP SEVİYESİ: ${accountLevel}\nHESABA ŞUAN NE YAPILIYOR: ${accountStatus}`;
+                inbox.push({ to: recipient, message: message, read: false });
+                localStorage.setItem('inbox', JSON.stringify(inbox)); // Save to localStorage
+                alert("Mesaj başarıyla gönderildi!");
+
+                // Highlight the recipient's inbox button with yellow color
+                if (currentUser.username === recipient) {
+                    document.getElementById('inboxButton').style.backgroundColor = 'yellow';
+                }
             } else {
-                alert("Gelen Mesajlar:\n" + inbox.join("\n"));
+                alert("Geçersiz kullanıcı adı.");
             }
         }
 
-        document.getElementById('forgotPasswordButton').addEventListener('click', function () {
-            const username = prompt("Kullanıcı adınızı girin:");
-            const user = users.find(u => u.username === username);
+        function viewInbox() {
+            const messages = inbox.filter(msg => msg.to === currentUser.username || msg.to === 'all');
+            if (messages.length > 0) {
+                let messageText = messages.map(msg => msg.message).join('\n\n');
+                alert("Gelen Kutusu:\n\n" + messageText);
 
-            if (user) {
-                const email = prompt("E-posta adresinizi girin (örn: user@gmail.com):");
+                // Mark messages as read
+                inbox.forEach(msg => {
+                    if (msg.to === currentUser.username || msg.to === 'all') {
+                        msg.read = true;
+                    }
+                });
+                localStorage.setItem('inbox', JSON.stringify(inbox)); // Save to localStorage
 
-                if (email.endsWith("@gmail.com") || email.endsWith("@outlook.com")) {
-                    const newGeneratedPassword = Math.random().toString(36).slice(-8);
-                    user.password = newGeneratedPassword;
-                    alert("Yeni şifreniz e-posta adresinize gönderildi: " + newGeneratedPassword);
-                } else {
-                    alert("Geçersiz e-posta adresi.");
-                }
+                // Reset the inbox button color
+                document.getElementById('inboxButton').style.backgroundColor = '';
             } else {
-                alert("Kullanıcı bulunamadı.");
+                alert("Gelen kutusu boş.");
             }
-        });
+        }
     </script>
 </body>
 
