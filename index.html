@@ -1,13 +1,12 @@
 <script>
     const users = [
-        { username: "Yönetici", password: "Yönetici1", passwordChanges: 0, isAdmin: true },
-        { username: "Yönetici2", password: "A1", passwordChanges: 0, isAdmin: true },
-        { username: "GAMEKINGPOYRAZ", password: "ADMIN1", passwordChanges: 0, isAdmin: true, transactionNumber: "ADMINGAMEKİNGPOYRAZ" },
-        { username: "Kullanıcı", password: "user123", passwordChanges: 0, isAdmin: false }
+        { username: "Yönetici", password: "Yönetici1", isAdmin: true, transactionNumber: "ADMINGAMEKİNGPOYRAZ" },
+        { username: "Yönetici2", password: "A1", isAdmin: true, transactionNumber: "ADMINGAMEKİNG" },
+        { username: "GAMEKINGPOYRAZ", password: "ADMIN1", isAdmin: true, transactionNumber: "ADMIN1" },
+        // Add more users here as needed
     ];
 
     let currentUser = null;
-    let announcements = [];
     let inbox = [];
 
     function login() {
@@ -18,13 +17,11 @@
 
         if (currentUser) {
             const transactionNumber = prompt("İşlem numaranızı yazın:");
-            if (currentUser.isAdmin && transactionNumber === currentUser.transactionNumber) {
-                showUserInterface();
-            } else if (!currentUser.isAdmin) {
+            if (transactionNumber === currentUser.transactionNumber) {
                 showUserInterface();
             } else {
                 alert("Geçersiz işlem numarası.");
-                logout();
+                currentUser = null;
             }
         } else {
             alert("Geçersiz kullanıcı adı veya şifre.");
@@ -41,24 +38,8 @@
         alert('GAME KİNG POYRAZ DESTEK\'TEN ŞİFRE ALIN');
     }
 
-    function changePassword() {
-        if (currentUser.passwordChanges >= 2) {
-            alert("Maksimum şifre değiştirme hakkınızı doldurdunuz.");
-            return;
-        }
-
-        const newPassword = prompt("Yeni şifrenizi girin:");
-        if (newPassword) {
-            currentUser.password = newPassword;
-            currentUser.passwordChanges += 1;
-            alert("Şifreniz başarıyla değiştirildi.");
-        } else {
-            alert("Şifre değiştirilemedi.");
-        }
-    }
-
     function createAccount() {
-        if (currentUser.isAdmin) {
+        if (currentUser && currentUser.isAdmin) {
             const newUsername = prompt("Yeni kullanıcı adı girin:");
             const newPassword = prompt("Yeni şifre girin:");
             const transactionNumber = prompt("Yeni işlem numarası girin:");
@@ -67,30 +48,14 @@
                 if (users.find(u => u.username === newUsername)) {
                     alert("Bu kullanıcı adı zaten mevcut.");
                 } else {
-                    users.push({ username: newUsername, password: newPassword, transactionNumber: transactionNumber, passwordChanges: 0, isAdmin: false });
+                    users.push({ username: newUsername, password: newPassword, isAdmin: false, transactionNumber: transactionNumber });
                     alert("Yeni hesap başarıyla oluşturuldu!");
                 }
             } else {
                 alert("Kullanıcı adı, şifre ve işlem numarası boş olamaz.");
             }
         } else {
-            alert("Sadece Yönetici bu butonu kullanabilir.");
-        }
-    }
-
-    function sendAnnouncement() {
-        const message = prompt("Göndermek istediğiniz duyuruyu yazın:");
-        if (message) {
-            announcements.push(message);
-            alert("Duyuru başarıyla gönderildi!");
-        }
-    }
-
-    function viewInbox() {
-        if (inbox.length === 0) {
-            alert("Henüz gelen mesajınız yok.");
-        } else {
-            alert("Gelen Mesajlar:\n" + inbox.join("\n"));
+            alert("Sadece yönetici bu işlemi gerçekleştirebilir.");
         }
     }
 
@@ -104,30 +69,13 @@
             inbox.push(`HESAP ADI: ${accountName}\nHESAP SEVİYESİ: ${accountLevel}\nHESABA ŞUAN NE YAPILIYOR: ${accountStatus}`);
             alert("Mesaj başarıyla gönderildi!");
             // Make the inbox button blink for the specific user
-            document.getElementById('inboxButton').classList.add('yellow-blink');
-        } else {
-            alert("Kullanıcı bulunamadı.");
-        }
-    }
-
-    document.getElementById('forgotPasswordButton').addEventListener('click', function() {
-        const username = prompt("Kullanıcı adınızı girin:");
-        const user = users.find(u => u.username === username);
-
-        if (user) {
-            const email = prompt("E-posta adresinizi girin (örn: user@gmail.com):");
-
-            if (email.endsWith("@gmail.com") || email.endsWith("@outlook.com")) {
-                const newGeneratedPassword = Math.random().toString(36).slice(-8);
-                user.password = newGeneratedPassword;
-                alert("Yeni şifreniz e-posta adresinize gönderildi: " + newGeneratedPassword);
-            } else {
-                alert("Geçersiz e-posta adresi.");
+            if (recipient.username === currentUser.username) {
+                document.getElementById('inboxButton').classList.add('yellow-blink');
             }
         } else {
             alert("Kullanıcı bulunamadı.");
         }
-    });
+    }
 
     function showUserInterface() {
         document.getElementById('loginSection').style.display = 'none';
@@ -140,4 +88,39 @@
             document.getElementById('messageButton').style.display = 'block';
         }
     }
+
+    function viewInbox() {
+        if (inbox.length === 0) {
+            alert("Henüz gelen mesajınız yok.");
+        } else {
+            alert("Gelen Mesajlar:\n" + inbox.join("\n"));
+        }
+    }
 </script>
+
+<button id="registerButton" onclick="showRegisterAlert()">Üye Oluştur</button>
+<button id="loginButton" onclick="login()">Giriş Yap</button>
+<button id="accountActionButton" style="display:none;" onclick="createAccount()">Hesap Oluştur</button>
+<button id="messageButton" style="display:none;" onclick="sendMessage()">Mesaj Gönder</button>
+<button id="inboxButton" onclick="viewInbox()">Gelen Kutusu</button>
+
+<div id="loginSection">
+    <input type="text" id="loginUsername" placeholder="Kullanıcı Adı">
+    <input type="password" id="loginPassword" placeholder="Şifre">
+</div>
+
+<div id="infoSection" style="display:none;">
+    <p>Hoş geldiniz, <span id="userName"></span></p>
+</div>
+
+<style>
+    .yellow-blink {
+        animation: yellowBlink 1s infinite;
+    }
+
+    @keyframes yellowBlink {
+        0% { background-color: transparent; }
+        50% { background-color: yellow; }
+        100% { background-color: transparent; }
+    }
+</style>
