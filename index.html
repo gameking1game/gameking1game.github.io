@@ -1,126 +1,142 @@
-<script>
-    const users = [
-        { username: "Yönetici", password: "Yönetici1", isAdmin: true, transactionNumber: "ADMINGAMEKİNGPOYRAZ" },
-        { username: "Yönetici2", password: "A1", isAdmin: true, transactionNumber: "ADMINGAMEKİNG" },
-        { username: "GAMEKINGPOYRAZ", password: "ADMIN1", isAdmin: true, transactionNumber: "ADMIN1" },
-        // Add more users here as needed
-    ];
-
-    let currentUser = null;
-    let inbox = [];
-
-    function login() {
-        const username = document.getElementById('loginUsername').value;
-        const password = document.getElementById('loginPassword').value;
-
-        currentUser = users.find(user => user.username === username && user.password === password);
-
-        if (currentUser) {
-            const transactionNumber = prompt("İşlem numaranızı yazın:");
-            if (transactionNumber === currentUser.transactionNumber) {
-                showUserInterface();
-            } else {
-                alert("Geçersiz işlem numarası.");
-                currentUser = null;
-            }
-        } else {
-            alert("Geçersiz kullanıcı adı veya şifre.");
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kullanıcı Giriş Sistemi</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
         }
-    }
+        .container {
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 400px;
+            padding: 30px;
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+        input, button {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+        button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        .red-button {
+            background-color: #dc3545;
+            color: white;
+        }
+        .red-button:hover {
+            background-color: #c82333;
+        }
+        footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #666;
+        }
+        .message {
+            display: none;
+            color: #28a745;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Kullanıcı Giriş Sistemi</h2>
+        <div id="loginSection">
+            <input type="text" id="loginUsername" placeholder="Kullanıcı Adı" required>
+            <input type="password" id="loginPassword" placeholder="Şifre" required>
+            <button onclick="login()">Giriş Yap</button>
+            <button onclick="showRegister()">Üye Ol</button>
+        </div>
+        <div id="registerSection" style="display:none;">
+            <input type="text" id="registerUsername" placeholder="Yeni Kullanıcı Adı" required>
+            <input type="password" id="registerPassword" placeholder="Yeni Şifre" required>
+            <input type="text" id="registerTransactionNumber" placeholder="İşlem Numarası" required>
+            <button onclick="register()">Hesap Oluştur</button>
+            <button class="red-button" onclick="showLogin()">İptal</button>
+        </div>
+        <div class="message" id="successMessage">Başarıyla giriş yapıldı!</div>
+    </div>
 
-    function logout() {
-        currentUser = null;
-        document.getElementById('loginSection').style.display = 'block';
-        document.getElementById('infoSection').style.display = 'none';
-    }
+    <footer>
+        <p>KING GAME PLAY MEDİA GROUP</p>
+    </footer>
 
-    function showRegisterAlert() {
-        alert('GAME KİNG POYRAZ DESTEK\'TEN ŞİFRE ALIN');
-    }
+    <script>
+        const users = JSON.parse(localStorage.getItem('users')) || [
+            { username: "GAMEKINGPOYRAZ", password: "ADMIN1", isAdmin: true, transactionNumber: "ADMINGAMEKİNGPOYRAZ" }
+        ];
 
-    function createAccount() {
-        if (currentUser && currentUser.isAdmin) {
-            const newUsername = prompt("Yeni kullanıcı adı girin:");
-            const newPassword = prompt("Yeni şifre girin:");
-            const transactionNumber = prompt("Yeni işlem numarası girin:");
+        let currentUser = null;
 
-            if (newUsername && newPassword && transactionNumber) {
-                if (users.find(u => u.username === newUsername)) {
-                    alert("Bu kullanıcı adı zaten mevcut.");
+        function login() {
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+
+            currentUser = users.find(user => user.username === username && user.password === password);
+
+            if (currentUser) {
+                const transactionNumber = prompt("İşlem numaranızı girin:");
+                if (transactionNumber === currentUser.transactionNumber) {
+                    document.getElementById('loginSection').style.display = 'none';
+                    document.getElementById('successMessage').style.display = 'block';
                 } else {
-                    users.push({ username: newUsername, password: newPassword, isAdmin: false, transactionNumber: transactionNumber });
-                    alert("Yeni hesap başarıyla oluşturuldu!");
+                    alert("Geçersiz işlem numarası.");
                 }
             } else {
-                alert("Kullanıcı adı, şifre ve işlem numarası boş olamaz.");
+                alert("Geçersiz kullanıcı adı veya şifre.");
             }
-        } else {
-            alert("Sadece yönetici bu işlemi gerçekleştirebilir.");
         }
-    }
 
-    function sendMessage() {
-        const accountName = prompt("HESAP ADI:");
-        const accountLevel = prompt("HESAP SEVİYESİ:");
-        const accountStatus = prompt("HESABA ŞUAN NE YAPILIYOR:");
+        function register() {
+            const newUsername = document.getElementById('registerUsername').value;
+            const newPassword = document.getElementById('registerPassword').value;
+            const transactionNumber = document.getElementById('registerTransactionNumber').value;
 
-        const recipient = users.find(u => u.username === accountName);
-        if (recipient) {
-            inbox.push(`HESAP ADI: ${accountName}\nHESAP SEVİYESİ: ${accountLevel}\nHESABA ŞUAN NE YAPILIYOR: ${accountStatus}`);
-            alert("Mesaj başarıyla gönderildi!");
-            // Make the inbox button blink for the specific user
-            if (recipient.username === currentUser.username) {
-                document.getElementById('inboxButton').classList.add('yellow-blink');
+            if (users.find(u => u.username === newUsername)) {
+                alert("Bu kullanıcı adı zaten mevcut.");
+            } else {
+                users.push({ username: newUsername, password: newPassword, isAdmin: false, transactionNumber: transactionNumber });
+                localStorage.setItem('users', JSON.stringify(users));
+                alert("Yeni hesap başarıyla oluşturuldu!");
+                showLogin();
             }
-        } else {
-            alert("Kullanıcı bulunamadı.");
         }
-    }
 
-    function showUserInterface() {
-        document.getElementById('loginSection').style.display = 'none';
-        document.getElementById('infoSection').style.display = 'block';
-        document.getElementById('userName').innerText = currentUser.username;
-
-        if (currentUser.isAdmin) {
-            document.getElementById('accountActionButton').style.display = 'block';
-            document.getElementById('announcementButton').style.display = 'block';
-            document.getElementById('messageButton').style.display = 'block';
+        function showLogin() {
+            document.getElementById('registerSection').style.display = 'none';
+            document.getElementById('loginSection').style.display = 'block';
         }
-    }
 
-    function viewInbox() {
-        if (inbox.length === 0) {
-            alert("Henüz gelen mesajınız yok.");
-        } else {
-            alert("Gelen Mesajlar:\n" + inbox.join("\n"));
+        function showRegister() {
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('registerSection').style.display = 'block';
         }
-    }
-</script>
-
-<button id="registerButton" onclick="showRegisterAlert()">Üye Oluştur</button>
-<button id="loginButton" onclick="login()">Giriş Yap</button>
-<button id="accountActionButton" style="display:none;" onclick="createAccount()">Hesap Oluştur</button>
-<button id="messageButton" style="display:none;" onclick="sendMessage()">Mesaj Gönder</button>
-<button id="inboxButton" onclick="viewInbox()">Gelen Kutusu</button>
-
-<div id="loginSection">
-    <input type="text" id="loginUsername" placeholder="Kullanıcı Adı">
-    <input type="password" id="loginPassword" placeholder="Şifre">
-</div>
-
-<div id="infoSection" style="display:none;">
-    <p>Hoş geldiniz, <span id="userName"></span></p>
-</div>
-
-<style>
-    .yellow-blink {
-        animation: yellowBlink 1s infinite;
-    }
-
-    @keyframes yellowBlink {
-        0% { background-color: transparent; }
-        50% { background-color: yellow; }
-        100% { background-color: transparent; }
-    }
-</style>
+    </script>
+</body>
+</html>
