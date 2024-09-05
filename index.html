@@ -1,179 +1,86 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="tr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login System</title>
+    <title>King Game Play Media Giriş</title>
     <style>
-        /* Basic styling for the login form */
+        /* Temel yapı ve görünüm ayarları */
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to right, #1a73e8, #00bfa5);
+            height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
         }
-
-        .login-container {
-            background-color: #ffffff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-            width: 300px;
-        }
-
-        h2 {
+        .container {
+            background-color: #fff;
+            width: 400px;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.2);
             text-align: center;
+        }
+        h2 {
             margin-bottom: 20px;
+            color: #333;
         }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        .form-group input {
+        input, button {
             width: 100%;
-            padding: 8px;
-            box-sizing: border-box;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
         }
-
-        .form-group button {
-            width: 100%;
-            padding: 10px;
-            background-color: #007bff;
+        button {
+            background-color: #4CAF50;
             color: white;
             border: none;
             cursor: pointer;
-            border-radius: 5px;
         }
-
-        .form-group button:hover {
-            background-color: #0056b3;
+        button:hover {
+            background-color: #45a049;
         }
-
-        .admin-buttons {
+        .footer {
             margin-top: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
+            color: #555;
         }
-
-        #verificationSection {
-            display: none;
-        }
-
-        #infoSection {
-            display: none;
-        }
-
-        #accountActionButton,
-        #announcementButton,
-        #messageButton {
-            display: none;
-            padding: 10px;
-            border-radius: 5px;
-            text-align: center;
-            cursor: pointer;
-        }
-
-        #accountActionButton {
-            background-color: red;
-            color: white;
-        }
-
-        #announcementButton {
-            background-color: green;
-            color: white;
-        }
-
-        #messageButton {
-            background-color: yellow;
-            color: black;
+        .footer a {
+            text-decoration: none;
+            color: #1a73e8;
         }
     </style>
 </head>
 <body>
-    <div class="login-container">
-        <h2>Login</h2>
-        <div class="form-group">
-            <label for="username">Username</label>
-            <input type="text" id="username">
-        </div>
-        <div class="form-group">
-            <label for="password">Password</label>
-            <input type="password" id="password">
-        </div>
-        <div class="form-group">
-            <button onclick="login()">Login</button>
-        </div>
-
-        <div id="verificationSection">
-            <h3>2-Step Verification</h3>
-            <div class="form-group">
-                <label for="transactionCode">Enter Transaction Code</label>
-                <input type="text" id="transactionCode">
-            </div>
-            <div class="form-group">
-                <button onclick="verifyTransactionCode()">Verify</button>
-            </div>
-        </div>
-
-        <div id="infoSection">
-            <h3>Welcome, <span id="userName"></span></h3>
-            <div class="admin-buttons">
-                <div id="accountActionButton">Hesap İşlem</div>
-                <div id="announcementButton">Duyuru Gönder</div>
-                <div id="messageButton">Mesaj Gönder</div>
-            </div>
-        </div>
+    <div class="container">
+        <h2>King Game Play Media Giriş</h2>
+        <input type="text" id="loginUsername" placeholder="Kullanıcı Adı" required>
+        <input type="password" id="loginPassword" placeholder="Şifre" required>
+        <button onclick="login()">Giriş Yap</button>
+        <button id="registerButton" onclick="registerAlert()">Üye Ol</button>
     </div>
 
+    <footer class="footer">
+        <p>KING GAME PLAY MEDİA GROUP</p>
+    </footer>
+
     <script>
-        // Sample user data
-        const users = [
-            { username: 'GAMEKINGPOYRAZ', password: 'ADMIN1', verificationCode: 'GAMEKING', isAdmin: true },
-            { username: 'Yönetici', password: 'Yönetici1', verificationCode: 'ADMINGAMEKİNGPOYRAZ', isAdmin: true },
-            { username: 'Yönetici2', password: 'A1', verificationCode: 'ADMINGAMEKİNGPOYRAZ', isAdmin: true },
-            // Add more users as needed
-        ];
-
-        let currentUser = null;
-
         function login() {
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
 
-            // Check if the user exists and the password matches
-            const user = users.find(u => u.username === username && u.password === password);
-            if (user) {
-                currentUser = user;
-                document.getElementById('verificationSection').style.display = 'block';
+            if (username === 'Yönetici' && password === 'A1') {
+                alert('Giriş başarılı! Yönetici olarak giriş yaptınız.');
             } else {
-                alert('Invalid username or password');
+                alert('Geçersiz kullanıcı adı veya şifre.');
             }
         }
 
-        function verifyTransactionCode() {
-            const transactionCode = document.getElementById('transactionCode').value;
-            if (currentUser.verificationCode === transactionCode) {
-                document.getElementById('verificationSection').style.display = 'none';
-                document.getElementById('infoSection').style.display = 'block';
-                document.getElementById('userName').innerText = currentUser.username;
-
-                if (currentUser.isAdmin) {
-                    document.getElementById('accountActionButton').style.display = 'block';
-                    document.getElementById('announcementButton').style.display = 'block';
-                    document.getElementById('messageButton').style.display = 'block'; // Only admins can see this button
-                }
-            } else {
-                alert("Geçersiz işlem numarası.");
-            }
+        function registerAlert() {
+            alert('GAME KİNG POYRAZ DESTEK\'ten şifrenizi alın.');
         }
     </script>
 </body>
