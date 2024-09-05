@@ -32,10 +32,6 @@
             color: #333;
         }
 
-        .admin-section, .user-section {
-            margin-bottom: 20px;
-        }
-
         .button {
             display: inline-block;
             padding: 10px 20px;
@@ -64,6 +60,10 @@
             border-radius: 4px;
         }
 
+        .hidden {
+            display: none;
+        }
+
         footer {
             text-align: center;
             padding: 10px;
@@ -81,38 +81,38 @@
     <h1>Yönetici ve Kullanıcı Paneli</h1>
 </header>
 
-<div class="container">
-    <!-- Admin Section -->
-    <div class="admin-section">
-        <h2>Yönetici Paneli</h2>
+<!-- Login Section -->
+<div class="container" id="login-section">
+    <h2>Giriş Yap</h2>
+    <input type="text" class="input-field" id="login-username" placeholder="Kullanıcı Adı">
+    <input type="password" class="input-field" id="login-password" placeholder="Şifre">
+    <button class="button" onclick="login()">Giriş Yap</button>
+</div>
 
-        <!-- Hesap Ekleme Button -->
-        <button class="button green" onclick="createAccount()">Hesap Ekleme</button>
+<!-- Admin Section -->
+<div class="container hidden" id="admin-panel">
+    <h2>Yönetici Paneli</h2>
+    <button class="button green" onclick="createAccount()">Hesap Ekleme</button>
+    <button class="button yellow" onclick="viewStats()">İstatistikleri Gör</button>
 
-        <!-- İstatistik Button -->
-        <button class="button yellow" onclick="viewStats()">İstatistikleri Gör</button>
+    <h3>Hesap Bilgisi Gönderme</h3>
+    <input type="text" class="input-field" id="username" placeholder="Hesap Adı">
+    <input type="text" class="input-field" id="cup" placeholder="Hesap Kupası">
+    <input type="text" class="input-field" id="club" placeholder="Hesap Kulübü">
+    <button class="button" onclick="sendAccountInfo()">Hesap Bilgilerini Gönder</button>
 
-        <!-- Hesap Bilgisi Gönderme -->
-        <h3>Hesap Bilgisi Gönderme</h3>
-        <input type="text" class="input-field" id="username" placeholder="Hesap Adı">
-        <input type="text" class="input-field" id="cup" placeholder="Hesap Kupası">
-        <input type="text" class="input-field" id="club" placeholder="Hesap Kulübü">
-        <button class="button" onclick="sendAccountInfo()">Hesap Bilgilerini Gönder</button>
+    <h3>Mesaj Gönder</h3>
+    <input type="text" class="input-field" id="recipient" placeholder="Bu mesaj kime gidecek?">
+    <input type="text" class="input-field" id="message" placeholder="Mesaj">
+    <button class="button" onclick="sendMessage()">Mesaj Gönder</button>
+</div>
 
-        <!-- Mesaj Gönderme -->
-        <h3>Mesaj Gönder</h3>
-        <input type="text" class="input-field" id="recipient" placeholder="Bu mesaj kime gidecek?">
-        <input type="text" class="input-field" id="message" placeholder="Mesaj">
-        <button class="button" onclick="sendMessage()">Mesaj Gönder</button>
-    </div>
-
-    <!-- User Section -->
-    <div class="user-section">
-        <h2>Kullanıcı Paneli</h2>
-        <button class="button" onclick="viewMessages()">Yöneticiden Gelen Mesajlar</button>
-        <button class="button" onclick="viewAccountInfo()">Hesap Bilgilerim</button>
-        <button class="button" onclick="checkAccountStatus()">Hesabıma Ne Yapılıyor?</button>
-    </div>
+<!-- User Section -->
+<div class="container hidden" id="user-panel">
+    <h2>Kullanıcı Paneli</h2>
+    <button class="button" onclick="viewMessages()">Yöneticiden Gelen Mesajlar</button>
+    <button class="button" onclick="viewAccountInfo()">Hesap Bilgilerim</button>
+    <button class="button" onclick="checkAccountStatus()">Hesabıma Ne Yapılıyor?</button>
 </div>
 
 <footer>
@@ -120,15 +120,52 @@
 </footer>
 
 <script>
-    // Functions to handle account creation, stats, messages, etc.
+    // Simulated user data for login
+    const admins = [
+        { username: 'YÖNETİCİ', password: 'A1', twoStepCode: 'ADMIN' },
+        { username: 'GAMEKINGPOYRAZ', password: 'ADMIN1', twoStepCode: 'GAMEKING' }
+    ];
+    
+    const users = [
+        { username: 'USER1', password: 'USERPASS' },
+        { username: 'USER2', password: 'USERPASS2' }
+    ];
+
+    function login() {
+        const username = document.getElementById('login-username').value;
+        const password = document.getElementById('login-password').value;
+
+        // Check if admin
+        const admin = admins.find(admin => admin.username === username && admin.password === password);
+        if (admin) {
+            const twoStepCode = prompt("2 Adımlı Doğrulama Kodu:");
+            if (twoStepCode === admin.twoStepCode) {
+                document.getElementById('login-section').classList.add('hidden');
+                document.getElementById('admin-panel').classList.remove('hidden');
+            } else {
+                alert("Yanlış 2 Adımlı Doğrulama Kodu.");
+            }
+            return;
+        }
+
+        // Check if user
+        const user = users.find(user => user.username === username && user.password === password);
+        if (user) {
+            document.getElementById('login-section').classList.add('hidden');
+            document.getElementById('user-panel').classList.remove('hidden');
+            return;
+        }
+
+        alert("Yanlış kullanıcı adı veya şifre.");
+    }
+
+    // Functions to handle admin and user panel actions
     function createAccount() {
         alert("Hesap oluşturma işlemi başladı.");
-        // Add code here to handle account creation
     }
 
     function viewStats() {
         alert("İstatistikler: X hesap oluşturuldu.");
-        // Add code here to display statistics
     }
 
     function sendAccountInfo() {
@@ -136,29 +173,24 @@
         let cup = document.getElementById("cup").value;
         let club = document.getElementById("club").value;
         alert(`Hesap bilgileri gönderildi: ${username}, ${cup}, ${club}`);
-        // Add code here to send account info to users
     }
 
     function sendMessage() {
         let recipient = document.getElementById("recipient").value;
         let message = document.getElementById("message").value;
         alert(`Mesaj gönderildi: ${recipient}, ${message}`);
-        // Add code here to send message to users
     }
 
     function viewMessages() {
         alert("Yöneticiden gelen mesajlar görüntüleniyor.");
-        // Add code here to view messages from admin
     }
 
     function viewAccountInfo() {
         alert("Hesap bilgileri görüntüleniyor.");
-        // Add code here to view user's account info
     }
 
     function checkAccountStatus() {
         alert("Hesabınıza şu anda yapılan işlemler görüntüleniyor.");
-        // Add code here to check account status
     }
 </script>
 
