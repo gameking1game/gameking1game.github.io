@@ -1,185 +1,135 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>King Game Play Media Giriş</title>
+    <title>Login System</title>
     <style>
         body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(to right, #1a73e8, #00bfa5);
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        .container {
-            background-color: #fff;
-            width: 400px;
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.2);
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
             text-align: center;
         }
-        h2 {
-            margin-bottom: 20px;
-            color: #333;
+
+        #login-container, #userDashboard, #adminDashboard {
+            margin-top: 50px;
         }
-        input, button {
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
+
         button {
-            background-color: #4CAF50;
+            padding: 10px 20px;
+            margin: 10px;
+            background-color: green;
             color: white;
             border: none;
             cursor: pointer;
         }
+
         button:hover {
-            background-color: #45a049;
+            background-color: darkgreen;
         }
-        .footer {
-            margin-top: 20px;
-            color: #555;
-        }
-        .footer a {
-            text-decoration: none;
-            color: #1a73e8;
-        }
-        .buttons {
-            display: none;
-            margin-top: 20px;
-        }
-        .buttons button {
-            width: 100%;
-            margin: 5px 0;
-            background-color: #1a73e8;
-            color: white;
-        }
-        .buttons button:hover {
-            background-color: #1665c0;
-        }
-        .admin-buttons {
-            display: none;
-            margin-top: 20px;
-        }
-        .admin-buttons button {
-            width: 100%;
-            margin: 5px 0;
-            background-color: #4CAF50;
-            color: white;
-        }
-        .admin-buttons button:hover {
-            background-color: #45a049;
+
+        #logoutUser, #logoutAdmin {
+            background-color: red;
         }
     </style>
 </head>
 <body>
-    <div class="container" id="loginContainer">
-        <h2>King Game Play Media Giriş</h2>
-        <input type="text" id="loginUsername" placeholder="Kullanıcı Adı" required>
-        <input type="password" id="loginPassword" placeholder="Şifre" required>
-        <button onclick="login()">Giriş Yap</button>
-        <button id="registerButton" onclick="registerAlert()">Üye Ol</button>
+    <div id="login-container">
+        <h2>Login</h2>
+        <form id="loginForm">
+            <input type="text" id="username" placeholder="Kullanıcı Adı" required>
+            <input type="password" id="password" placeholder="Şifre" required>
+            <button type="submit">Giriş Yap</button>
+        </form>
+        <button id="registerBtn">Üye Ol</button>
     </div>
 
-    <!-- Giriş sonrası kullanıcı tuşları -->
-    <div class="container buttons" id="userOptions">
-        <button onclick="viewMessages()">Yöneticiden Gelen Mesajlar</button>
-        <button onclick="sendMessage()">Yöneticiye Mesaj Gönder</button>
-        <button onclick="viewAccount()">Hesap Bilgilerim</button>
+    <div id="userDashboard" style="display:none;">
+        <h2>Kullanıcı Paneli</h2>
+        <button id="messagesFromAdmin">Yöneticiden Gelen Mesajlar</button>
+        <button id="sendMessageToAdmin">Yöneticiye Mesaj Gönder</button>
+        <button id="viewAccountInfo">Hesap Bilgilerim</button>
+        <button id="logoutUser">Çıkış Yap</button>
     </div>
 
-    <!-- Yönetici tuşları -->
-    <div class="container admin-buttons" id="adminOptions">
-        <button onclick="createAccount()">Yeni Hesap Oluştur</button>
-        <button onclick="viewStatistics()">İstatistik</button>
-        <button onclick="adminSendMessage()">Kullanıcıya Özel Mesaj Gönder</button>
+    <div id="adminDashboard" style="display:none;">
+        <h2>Yönetici Paneli</h2>
+        <button id="createAccount">Yeni Hesap Oluşturma</button>
+        <button id="viewStatistics">İstatistik</button>
+        <button id="sendMessage">Mesaj Gönder</button>
+        <button id="logoutAdmin">Çıkış Yap</button>
     </div>
-
-    <footer class="footer">
-        <p>KING GAME PLAY MEDİA GROUP</p>
-    </footer>
 
     <script>
-        let users = [];  // Kullanıcı hesaplarının kaydedileceği yer
+        // Handle login functionality
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            let username = document.getElementById('username').value;
+            let password = document.getElementById('password').value;
 
-        function login() {
-            const username = document.getElementById('loginUsername').value;
-            const password = document.getElementById('loginPassword').value;
-
-            // Yönetici girişi kontrolü
-            if (username === 'Yönetici' && password === 'A1') {
-                alert('Giriş başarılı! Yönetici olarak giriş yaptınız.');
-                showAdminOptions();
+            // Admin Login
+            if (username === 'YÖNETİCİ' && password === 'A1') {
+                document.getElementById('login-container').style.display = 'none';
+                document.getElementById('adminDashboard').style.display = 'block';
+            } 
+            // User Login
+            else if (username === 'GAMEKINGPOYRAZ' && password === 'ADMIN1') {
+                document.getElementById('login-container').style.display = 'none';
+                document.getElementById('userDashboard').style.display = 'block';
             } else {
-                alert('Geçersiz kullanıcı adı veya şifre.');
+                alert('Yanlış kullanıcı adı veya şifre.');
             }
-        }
+        });
 
-        function registerAlert() {
-            alert('GAME KİNG POYRAZ DESTEK\'ten şifrenizi alın.');
-        }
+        // Register functionality
+        document.getElementById('registerBtn').addEventListener('click', function() {
+            alert("GAME KING POYRAZ DESTEK'TEN ŞİFRE ALIN");
+        });
 
-        function showUserOptions() {
-            document.getElementById('loginContainer').style.display = 'none';
-            document.getElementById('userOptions').style.display = 'block';
-        }
+        // Logout for users
+        document.getElementById('logoutUser').addEventListener('click', function() {
+            document.getElementById('userDashboard').style.display = 'none';
+            document.getElementById('login-container').style.display = 'block';
+        });
 
-        function showAdminOptions() {
-            document.getElementById('loginContainer').style.display = 'none';
-            document.getElementById('adminOptions').style.display = 'block';
-        }
+        // Logout for admin
+        document.getElementById('logoutAdmin').addEventListener('click', function() {
+            document.getElementById('adminDashboard').style.display = 'none';
+            document.getElementById('login-container').style.display = 'block';
+        });
 
-        function viewMessages() {
-            alert('Yöneticiden gelen mesajlarınızı göreceksiniz.');
-        }
+        // Send Message Functionality for Admin
+        document.getElementById('sendMessage').addEventListener('click', function() {
+            let recipient = prompt("HESAP ADI:");
+            let level = prompt("HESAP SEVİYESİ:");
+            let status = prompt("HESABA ŞUAN NE YAPILIYOR:");
 
-        function sendMessage() {
-            const message = prompt("Yöneticinize iletmek istediğiniz mesajı yazın:");
-            if (message) {
-                alert('Mesajınız gönderildi: ' + message);
-            }
-        }
+            alert('Mesaj ' + recipient + ' adlı kullanıcıya gönderildi.');
+        });
 
-        function viewAccount() {
-            alert('Hesap bilgileriniz görüntülenecek.');
-        }
+        // View Statistics (Number of Accounts Created)
+        document.getElementById('viewStatistics').addEventListener('click', function() {
+            alert("Toplam hesaplar: 5\nGAMEKINGPOYRAZ, Şifre: ADMIN1");
+        });
 
-        function createAccount() {
-            const username = prompt("Yeni hesabın kullanıcı adı:");
-            const password = prompt("Yeni hesabın şifresi:");
-            const transactionNumber = prompt("İşlem numarasını girin:");
-            if (username && password && transactionNumber) {
-                users.push({ username, password, transactionNumber });
-                alert('Hesap başarıyla oluşturuldu!');
-            }
-        }
+        // Account Creation for Admin
+        document.getElementById('createAccount').addEventListener('click', function() {
+            let newAccount = prompt("Yeni Hesap Adı:");
+            let newPassword = prompt("Yeni Hesap Şifresi:");
+            alert("Hesap başarıyla oluşturuldu:\nKullanıcı Adı: " + newAccount + "\nŞifre: " + newPassword);
+        });
 
-        function viewStatistics() {
-            if (users.length === 0) {
-                alert("Henüz oluşturulmuş bir hesap yok.");
-                return;
-            }
-            let stats = "Oluşturulan Hesaplar:\n";
-            users.forEach((user, index) => {
-                stats += `${index + 1}. Kullanıcı Adı: ${user.username}, Şifre: ${user.password}\n`;
-            });
-            alert(stats);
-        }
+        // Messages From Admin for Users
+        document.getElementById('messagesFromAdmin').addEventListener('click', function() {
+            alert("Yeni bir mesajınız var: Yönetici mesajı.");
+        });
 
-        function adminSendMessage() {
-            const recipient = prompt("Mesaj göndermek istediğiniz kullanıcının adı:");
-            const message = prompt("Göndermek istediğiniz mesaj:");
-            if (recipient && message) {
-                alert(`${recipient} adlı kullanıcıya mesaj gönderildi: ${message}`);
-            }
-        }
+        // Send Message to Admin for Users
+        document.getElementById('sendMessageToAdmin').addEventListener('click', function() {
+            let message = prompt("Yöneticinize mesajınızı yazın:");
+            alert("Mesajınız gönderildi: " + message);
+        });
     </script>
 </body>
 </html>
