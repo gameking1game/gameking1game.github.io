@@ -92,7 +92,7 @@
 <!-- Admin Section -->
 <div class="container hidden" id="admin-panel">
     <h2>Yönetici Paneli</h2>
-    <button class="button green" onclick="createAccount()">Hesap Ekleme</button>
+    <button class="button green" onclick="showCreateAccountForm()">Hesap Ekleme</button>
     <button class="button yellow" onclick="viewStats()">İstatistikleri Gör</button>
 
     <h3>Hesap Bilgisi Gönderme</h3>
@@ -105,6 +105,14 @@
     <input type="text" class="input-field" id="recipient" placeholder="Bu mesaj kime gidecek?">
     <input type="text" class="input-field" id="message" placeholder="Mesaj">
     <button class="button" onclick="sendMessage()">Mesaj Gönder</button>
+</div>
+
+<!-- Create Account Form -->
+<div class="container hidden" id="create-account-form">
+    <h2>Yeni Hesap Oluştur</h2>
+    <input type="text" class="input-field" id="new-username" placeholder="Yeni Kullanıcı Adı">
+    <input type="password" class="input-field" id="new-password" placeholder="Yeni Şifre">
+    <button class="button" onclick="createAccount()">Hesap Oluştur</button>
 </div>
 
 <!-- User Section -->
@@ -126,10 +134,7 @@
         { username: 'GAMEKINGPOYRAZ', password: 'ADMIN1', twoStepCode: 'GAMEKING' }
     ];
     
-    const users = [
-        { username: 'USER1', password: 'USERPASS' },
-        { username: 'USER2', password: 'USERPASS2' }
-    ];
+    const users = [];
 
     function login() {
         const username = document.getElementById('login-username').value;
@@ -159,13 +164,28 @@
         alert("Yanlış kullanıcı adı veya şifre.");
     }
 
-    // Functions to handle admin and user panel actions
+    // Function to show the account creation form
+    function showCreateAccountForm() {
+        document.getElementById('admin-panel').classList.add('hidden');
+        document.getElementById('create-account-form').classList.remove('hidden');
+    }
+
+    // Function to create a new account
     function createAccount() {
-        alert("Hesap oluşturma işlemi başladı.");
+        const newUsername = document.getElementById('new-username').value;
+        const newPassword = document.getElementById('new-password').value;
+        if (newUsername && newPassword) {
+            users.push({ username: newUsername, password: newPassword });
+            alert(`Yeni hesap oluşturuldu: ${newUsername}`);
+            document.getElementById('create-account-form').classList.add('hidden');
+            document.getElementById('admin-panel').classList.remove('hidden');
+        } else {
+            alert("Lütfen tüm alanları doldurun.");
+        }
     }
 
     function viewStats() {
-        alert("İstatistikler: X hesap oluşturuldu.");
+        alert(`İstatistikler: ${users.length} hesap oluşturuldu.`);
     }
 
     function sendAccountInfo() {
